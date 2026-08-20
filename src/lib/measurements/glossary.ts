@@ -1,0 +1,163 @@
+export type MeasurementGlossaryEntry = {
+  id: string;
+  label: string;
+  category: "head" | "trunk" | "upper" | "pelvis" | "lower" | "fullBody" | "quality";
+  appliesTo: string[];
+  formula: string;
+  means: string;
+  reference: string;
+  doesNotMean: string;
+  trackFor: string;
+  improveWith: string[];
+};
+
+export const measurementGlossary: MeasurementGlossaryEntry[] = [
+  {
+    id: "shoulder_tilt",
+    label: "Shoulder tilt",
+    category: "upper",
+    appliesTo: ["front_shoulder_tilt", "back_shoulder_tilt"],
+    formula: "Angle of the left-shoulder to right-shoulder line relative to horizontal.",
+    means: "A repeatable side-to-side shoulder height difference in the photo view.",
+    reference: "Closer to 0 degrees means the shoulder landmarks look more level in that photo. Small values can be normal measurement noise; compare repeated scans.",
+    doesNotMean: "It does not diagnose scoliosis, shoulder pathology, or spinal rotation.",
+    trackFor: "Use front/back trends to see if shoulder-level asymmetry is stable or changing.",
+    improveWith: ["Band row or cable row", "Prone Y/T/W raises"],
+  },
+  {
+    id: "hip_tilt",
+    label: "Hip tilt",
+    category: "pelvis",
+    appliesTo: ["front_hip_tilt", "back_hip_tilt"],
+    formula: "Angle of the left-hip to right-hip line relative to horizontal.",
+    means: "A repeatable side-to-side hip landmark height difference in the photo view.",
+    reference: "Closer to 0 degrees means the hip landmarks look more level in that photo. This is most useful as a consistency check.",
+    doesNotMean: "It does not prove pelvic torsion, leg-length difference, anterior pelvic tilt, or posterior pelvic tilt.",
+    trackFor: "Use only with consistent stance, camera height, and landmark quality.",
+    improveWith: ["Hip hinge + split squat pattern"],
+  },
+  {
+    id: "head_tilt",
+    label: "Head tilt",
+    category: "head",
+    appliesTo: ["front_head_tilt", "back_head_tilt"],
+    formula: "Angle of the eye line, or ear line fallback, relative to horizontal.",
+    means: "A 2D head landmark line tilt visible in the scan.",
+    reference: "Closer to 0 degrees means the eye or ear line looks more level. Treat this as a retest signal, not a target to force.",
+    doesNotMean: "It does not diagnose cervical alignment, scoliosis, vestibular issues, or neck pathology.",
+    trackFor: "Retest across multiple scans before treating asymmetry as meaningful.",
+    improveWith: ["Chin tuck / deep neck flexor hold"],
+  },
+  {
+    id: "trunk_lean",
+    label: "Trunk lean",
+    category: "trunk",
+    appliesTo: ["front_trunk_lean", "back_trunk_lean", "leftSide_trunk_lean", "rightSide_trunk_lean"],
+    formula: "Angle from shoulder midpoint to hip midpoint relative to vertical.",
+    means: "A repeatable lean of the shoulder-to-hip segment in the camera view.",
+    reference: "Closer to 0 degrees means the shoulder midpoint is more vertically stacked over the hip midpoint in that view.",
+    doesNotMean: "It does not diagnose spinal curvature, disc problems, or structural kyphosis.",
+    trackFor: "Track as a trunk-position proxy when scan setup is consistent.",
+    improveWith: ["Thoracic extension mobility", "Hip hinge + split squat pattern"],
+  },
+  {
+    id: "head_lateral_offset",
+    label: "Head lateral offset",
+    category: "head",
+    appliesTo: ["front_head_lateral_offset", "back_head_lateral_offset"],
+    formula: "Horizontal head-center offset from shoulder midpoint, normalized by shoulder width.",
+    means: "How far the head center appears left or right of the shoulder midpoint.",
+    reference: "Closer to 0% means the head center appears more centered over the shoulder midpoint in front/back views.",
+    doesNotMean: "It does not diagnose cervical shift, scoliosis, or neurologic causes.",
+    trackFor: "Use as an asymmetry trend only after repeatable scans.",
+    improveWith: ["Chin tuck / deep neck flexor hold", "Prone Y/T/W raises"],
+  },
+  {
+    id: "shoulder_hip_tilt_difference",
+    label: "Shoulder-hip tilt difference",
+    category: "trunk",
+    appliesTo: ["front_shoulder_hip_tilt_difference", "back_shoulder_hip_tilt_difference"],
+    formula: "Absolute difference between shoulder-line tilt and hip-line tilt in the same front/back photo.",
+    means: "How differently the shoulder line and hip line are angled in the same view.",
+    reference: "Closer to 0 degrees means the shoulder and hip lines are more parallel in that photo.",
+    doesNotMean: "It does not diagnose scoliosis, pelvic rotation, or structural asymmetry.",
+    trackFor: "Use as an upper-body asymmetry consistency check across repeated scans.",
+    improveWith: ["Band row or cable row", "Prone Y/T/W raises", "Hip hinge + split squat pattern"],
+  },
+  {
+    id: "ear_over_shoulder_offset",
+    label: "Head alignment",
+    category: "head",
+    appliesTo: ["leftSide_ear_over_shoulder_offset", "rightSide_ear_over_shoulder_offset"],
+    formula: "Horizontal ear-center offset from shoulder midpoint, normalized by trunk length.",
+    means: "A side-photo proxy for forward-head posture and one kyphosis-related signal.",
+    reference: "Closer to 0% means the ear midpoint appears more vertically stacked over the shoulder midpoint. Do not force 0; track whether it trends down across comparable side scans.",
+    doesNotMean: "It does not diagnose kyphosis or measure the thoracic Cobb angle.",
+    trackFor: "This is a primary target: look for a downward trend across at least three comparable scans.",
+    improveWith: ["Thoracic extension mobility", "Chin tuck / deep neck flexor hold", "Pec doorway stretch"],
+  },
+  {
+    id: "ear_over_hip_offset",
+    label: "Head over hip offset",
+    category: "head",
+    appliesTo: ["leftSide_ear_over_hip_offset", "rightSide_ear_over_hip_offset"],
+    formula: "Horizontal ear-center offset from hip midpoint, normalized by trunk length.",
+    means: "A broader side-photo proxy for where the head sits relative to the torso base.",
+    reference: "Closer to 0% means the ear midpoint appears more vertically stacked over the hip midpoint. Use it alongside shoulder-over-hip offset.",
+    doesNotMean: "It does not measure spinal curve, diagnose kyphosis, or prove the cause of forward-head posture.",
+    trackFor: "Use alongside ear-over-shoulder and shoulder-over-hip offsets; it is most useful when all three move together.",
+    improveWith: ["Thoracic extension mobility", "Chin tuck / deep neck flexor hold", "Band row or cable row"],
+  },
+  {
+    id: "neck_lean",
+    label: "Neck lean",
+    category: "head",
+    appliesTo: ["leftSide_neck_lean", "rightSide_neck_lean"],
+    formula: "Angle from ear midpoint to shoulder midpoint relative to vertical.",
+    means: "A side-photo estimate of head/neck segment lean.",
+    reference: "Closer to 0 degrees means the ear-to-shoulder line is closer to vertical. This is sensitive to camera rotation and gaze.",
+    doesNotMean: "It does not diagnose cervical alignment, disc issues, nerve compression, or structural neck pathology.",
+    trackFor: "Track only across comparable side photos because rotation can change this number quickly.",
+    improveWith: ["Chin tuck / deep neck flexor hold", "Thoracic extension mobility"],
+  },
+  {
+    id: "craniovertebral_angle_proxy",
+    label: "Craniovertebral angle proxy",
+    category: "head",
+    appliesTo: ["leftSide_craniovertebral_angle_proxy", "rightSide_craniovertebral_angle_proxy"],
+    formula: "Angle between the side-view shoulder-to-ear line and a horizontal reference.",
+    means: "A photo-based forward-head posture proxy similar to a commonly studied craniovertebral-angle setup.",
+    reference: "This should not be 0. In this app, a larger, repeatable angle generally means the ear is less far forward relative to the shoulder. Compare left/right and trend over time.",
+    doesNotMean: "It does not diagnose cervical pathology, kyphosis, or exact spinal alignment.",
+    trackFor: "Track only across repeatable side photos; direction and consistency matter more than one absolute number.",
+    improveWith: ["Chin tuck / deep neck flexor hold", "Thoracic extension mobility", "Band row or cable row"],
+  },
+  {
+    id: "gaze_angle_proxy",
+    label: "Gaze angle proxy",
+    category: "head",
+    appliesTo: ["leftSide_gaze_angle_proxy", "rightSide_gaze_angle_proxy"],
+    formula: "Angle from ear midpoint to eye midpoint compared with horizontal in the side photo.",
+    means: "A rough check of whether the head is tipped up or down during the scan.",
+    reference: "Closer to level is useful for scan consistency. This is mainly a context flag because looking up or down can change other neck metrics.",
+    doesNotMean: "It does not diagnose vision, vestibular, jaw, or cervical conditions.",
+    trackFor: "Use mainly as a scan-context flag because intentional gaze changes can alter neck measures.",
+    improveWith: ["Better scan setup", "Chin tuck / deep neck flexor hold"],
+  },
+  {
+    id: "shoulder_over_hip_offset",
+    label: "Shoulder over hip offset",
+    category: "trunk",
+    appliesTo: ["leftSide_shoulder_over_hip_offset", "rightSide_shoulder_over_hip_offset"],
+    formula: "Horizontal shoulder midpoint offset from hip midpoint, normalized by trunk length.",
+    means: "A side-photo proxy for trunk/shoulder position and rounded-upper-back posture patterns.",
+    reference: "Closer to 0% means the shoulder midpoint appears more vertically stacked over the hip midpoint. Track gradual change, not a perfect single number.",
+    doesNotMean: "It does not diagnose kyphosis, lordosis, or pelvic tilt.",
+    trackFor: "This is a primary target: look for a downward or stable trend with better control.",
+    improveWith: ["Thoracic extension mobility", "Band row or cable row", "Pec doorway stretch"],
+  },
+];
+
+export function glossaryForMeasurement(id: string) {
+  return measurementGlossary.find((entry) => entry.appliesTo.includes(id) || id.includes(entry.id));
+}
