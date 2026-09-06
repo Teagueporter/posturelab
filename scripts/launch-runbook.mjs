@@ -29,6 +29,7 @@ export function buildLaunchRunbook({
     "3. Stripe",
     "- Run npm run stripe:catalog-plan.",
     `- Create recurring prices for env vars: ${stripeEnvNames.join(", ")}.`,
+    "- Run npm run stripe:key-plan.",
     "- Create the restricted runtime key.",
     "- Run npm run stripe:webhook-plan.",
     `- Create the webhook endpoint: ${productionUrl}/api/stripe/webhook.`,

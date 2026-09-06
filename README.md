@@ -83,6 +83,7 @@ npm run supabase:project-plan
 npm run supabase:migration-plan
 npm run supabase:live-check
 npm run stripe:catalog-plan
+npm run stripe:key-plan
 npm run stripe:webhook-plan
 npm run stripe:live-check
 npm run smoke:prod
@@ -103,6 +104,7 @@ Current local verification:
 - `npm run supabase:migration-plan`: validates and summarizes the checked-in Supabase migration before applying it to a live project
 - `npm run supabase:live-check`: checks live Supabase tables and the private scan-image bucket after env vars are installed
 - `npm run stripe:catalog-plan`: prints Stripe CLI commands for one Pro product with monthly/yearly prices without printing keys
+- `npm run stripe:key-plan`: prints least-privilege restricted-key permissions for the runtime Stripe key without printing keys
 - `npm run stripe:webhook-plan`: prints the production webhook endpoint, subscribed events, and Stripe CLI command without printing keys
 - `npm run stripe:live-check`: checks live Stripe monthly/yearly recurring prices, amounts, currency, lookup keys, and active products after env vars are installed
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
@@ -113,7 +115,7 @@ Current local verification:
 - `npm run vercel:deployment-check`: confirms the production Vercel alias points to a Ready deployment
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 53 files passed, 177 tests passed
+- Current test suite: 54 files passed, 179 tests passed
 
 The setup, launch runbook/status, Supabase project-plan, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe, Supabase, and Vercel OIDC secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 

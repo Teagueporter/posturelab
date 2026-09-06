@@ -42,6 +42,8 @@ describe("Stripe billing integration contracts", () => {
     expect(setupDoc).toContain("Checkout Sessions`: write");
     expect(setupDoc).toContain("Customer Portal Sessions`: write");
     expect(setupDoc).toContain("Subscriptions`: read/write");
+    expect(setupDoc).toContain("Prices`: read");
+    expect(setupDoc).toContain("Products`: read");
     expect(setupDoc).toContain("does not need a broad Stripe secret key");
   });
 

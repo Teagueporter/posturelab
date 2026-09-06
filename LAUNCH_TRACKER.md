@@ -26,7 +26,8 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [ ] Run `npm run stripe:catalog-plan` and use its generated Stripe CLI commands for the Pro catalog.
 - [ ] Create one `Posture Pro` product with monthly and yearly prices.
-- [ ] Create the restricted runtime key with Customers read/write, Checkout Sessions write, Customer Portal Sessions write, and Subscriptions read/write.
+- [ ] Run `npm run stripe:key-plan` before creating the runtime restricted key.
+- [ ] Create the restricted runtime key with Customers read/write, Checkout Sessions write, Customer Portal Sessions write, Subscriptions read/write, Prices read, and Products read.
 - [ ] Run `npm run stripe:live-check` after local Stripe env vars are installed.
 - [ ] Run `npm run stripe:webhook-plan` before creating the live webhook endpoint.
 - [ ] Create the webhook endpoint at `https://posturelab-six.vercel.app/api/stripe/webhook`.

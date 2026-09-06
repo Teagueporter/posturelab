@@ -52,6 +52,8 @@ The runtime Stripe restricted key should be scoped to the smallest surface the a
 - `Checkout Sessions`: write, for creating hosted Pro subscription checkout
 - `Customer Portal Sessions`: write, for opening billing self-service from Account
 - `Subscriptions`: read/write, for webhook subscription retrieval and account-deletion cancellation
+- `Prices`: read, for verifying configured price IDs during launch readiness
+- `Products`: read, for verifying each configured price belongs to an active Product during launch readiness
 
 The app does not need a broad Stripe secret key for normal runtime billing. If a restricted key returns a Stripe `403` during test checkout, add only the missing permission shown in Stripe request logs and test again.
 
@@ -143,15 +145,16 @@ npm run supabase:status
 2. Create a Product named `Posture Pro`.
 3. Create a recurring monthly Price at `$4.99` and a recurring yearly Price at `$29` on that same Product.
 4. Add the two Price IDs to `STRIPE_PRO_MONTHLY_PRICE_ID` and `STRIPE_PRO_YEARLY_PRICE_ID`.
-5. Run `npm run stripe:live-check` after adding the Stripe env vars locally. It verifies the configured monthly and yearly price IDs are active recurring prices with the expected billing intervals, USD amounts, lookup keys, and active products without printing keys.
-6. Run `npm run stripe:webhook-plan` to print the production webhook endpoint, subscribed events, and Stripe CLI command without printing keys.
-7. Create a webhook endpoint:
+5. Run `npm run stripe:key-plan` before creating `STRIPE_RESTRICTED_KEY`. It prints the least-privilege permissions needed by the app runtime and launch readiness checks without printing keys.
+6. Run `npm run stripe:live-check` after adding the Stripe env vars locally. It verifies the configured monthly and yearly price IDs are active recurring prices with the expected billing intervals, USD amounts, lookup keys, and active products without printing keys.
+7. Run `npm run stripe:webhook-plan` to print the production webhook endpoint, subscribed events, and Stripe CLI command without printing keys.
+8. Create a webhook endpoint:
 
 ```text
 https://YOUR_DOMAIN/api/stripe/webhook
 ```
 
-8. Subscribe the webhook to:
+9. Subscribe the webhook to:
 
 ```text
 checkout.session.completed
@@ -160,9 +163,9 @@ customer.subscription.updated
 customer.subscription.deleted
 ```
 
-9. Add the webhook signing secret to `STRIPE_WEBHOOK_SECRET`.
-10. Confirm duplicate webhook deliveries return `200` and do not create duplicate subscription side effects. Stripe can send the same event more than once, and the app records processed event IDs in `stripe_webhook_events`.
-11. Confirm failed webhook deliveries are retryable. The route only treats already processed events and fresh in-flight events as duplicates; failed events and stale processing claims are re-claimed for retry. If the route cannot sync subscription state or mark a processed event in Supabase, it returns `500` so Stripe retries instead of silently losing webhook bookkeeping. Checkout and billing portal actions also fail closed when Supabase cannot read or write the user's billing mapping.
+10. Add the webhook signing secret to `STRIPE_WEBHOOK_SECRET`.
+11. Confirm duplicate webhook deliveries return `200` and do not create duplicate subscription side effects. Stripe can send the same event more than once, and the app records processed event IDs in `stripe_webhook_events`.
+12. Confirm failed webhook deliveries are retryable. The route only treats already processed events and fresh in-flight events as duplicates; failed events and stale processing claims are re-claimed for retry. If the route cannot sync subscription state or mark a processed event in Supabase, it returns `500` so Stripe retries instead of silently losing webhook bookkeeping. Checkout and billing portal actions also fail closed when Supabase cannot read or write the user's billing mapping.
 
 Before going live, review Stripe Tax. The app intentionally does not enable `automatic_tax` until tax registrations are configured.
 
