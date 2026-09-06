@@ -1,15 +1,17 @@
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
-export function checkStripeCli({ runStripe = defaultRunStripe } = {}) {
-  try {
-    const output = runStripe(["whoami", "--format", "json"]);
-    return stripeCliResultFromWhoami(output);
-  } catch (error) {
-    if (error?.stdout) {
-      return stripeCliResultFromWhoami(String(error.stdout));
-    }
+export const minimumStripeCliVersion = "1.43.3";
 
+export function checkStripeCli({ runStripe = defaultRunStripe } = {}) {
+  let version = null;
+  let versionOk = false;
+
+  try {
+    const versionOutput = runStripe(["version"]);
+    version = parseStripeCliVersion(versionOutput);
+    versionOk = version ? compareSemver(version, minimumStripeCliVersion) >= 0 : false;
+  } catch (error) {
     const code = error?.code;
     const message = error instanceof Error ? error.message : String(error);
     const missing = code === "ENOENT" || message.includes("ENOENT");
@@ -18,8 +20,30 @@ export function checkStripeCli({ runStripe = defaultRunStripe } = {}) {
       ok: false,
       installed: !missing,
       authenticated: false,
+      version: null,
+      versionOk: false,
       account: {},
       detail: missing ? "Stripe CLI is not installed or not on PATH" : safeError(message),
+    };
+  }
+
+  try {
+    const output = runStripe(["whoami", "--format", "json"]);
+    return stripeCliResultFromWhoami(output, { version, versionOk });
+  } catch (error) {
+    if (error?.stdout) {
+      return stripeCliResultFromWhoami(String(error.stdout), { version, versionOk });
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      ok: false,
+      installed: true,
+      authenticated: false,
+      version,
+      versionOk,
+      account: {},
+      detail: versionOk === false ? `Stripe CLI must be ${minimumStripeCliVersion}+ for current setup docs` : safeError(message),
     };
   }
 }
@@ -27,6 +51,9 @@ export function checkStripeCli({ runStripe = defaultRunStripe } = {}) {
 export function formatStripeCliCheck(result) {
   const lines = [`Stripe CLI check: ${result.ok ? "PASS" : "FAIL"}`];
   lines.push(`- Installed: ${result.installed ? "yes" : "no"}`);
+  if (result.installed) {
+    lines.push(`- Version: ${result.version ?? "unknown"}${result.versionOk === false ? `, expected ${minimumStripeCliVersion}+` : ""}`);
+  }
   lines.push(`- Authenticated: ${result.authenticated ? "yes" : "no"}`);
   lines.push(`- Detail: ${result.detail}`);
 
@@ -51,22 +78,41 @@ export function parseStripeWhoami(output) {
   };
 }
 
-function stripeCliResultFromWhoami(output) {
+export function parseStripeCliVersion(output) {
+  const match = output.match(/\b(\d+\.\d+\.\d+)\b/);
+  return match?.[1] ?? null;
+}
+
+function stripeCliResultFromWhoami(output, { version, versionOk }) {
   const account = parseStripeWhoami(output);
   const authenticated =
     account.authenticated === true || Boolean(account.accountId || account.accountName || account.userEmail);
 
   return {
-    ok: authenticated,
+    ok: authenticated && versionOk !== false,
     installed: true,
     authenticated,
+    version,
+    versionOk,
     account,
-    detail: authenticated
+    detail: versionOk === false
+      ? `Stripe CLI must be ${minimumStripeCliVersion}+ for current setup docs`
+      : authenticated
       ? account.accountName
         ? `authenticated as ${account.accountName}`
         : "authenticated"
       : `Stripe CLI is installed but not authenticated${account.profileName ? ` for profile ${account.profileName}` : ""}`,
   };
+}
+
+function compareSemver(left, right) {
+  const leftParts = left.split(".").map(Number);
+  const rightParts = right.split(".").map(Number);
+  for (let index = 0; index < 3; index += 1) {
+    const diff = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
 }
 
 function defaultRunStripe(args) {
