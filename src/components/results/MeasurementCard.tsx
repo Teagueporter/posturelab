@@ -23,20 +23,20 @@ export function MeasurementCard({
             <Badge tone={focusTone(focus.level)}>{focus.label}</Badge>
             {measurement.category && <Badge tone="muted" className="uppercase">{measurement.category}</Badge>}
           </div>
-          {!compact && <p className="mt-2 text-sm leading-6 text-[#516156]">{measurement.explanation}</p>}
+          {!compact && <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{measurement.explanation}</p>}
         </div>
         <div className="shrink-0 text-right">
           <div className={compact ? "text-xl font-semibold" : "text-2xl font-semibold"}>
             {measurement.value}
             <span className="text-base">{measurement.unit}</span>
           </div>
-          {!compact && <div className="mt-1 text-xs font-medium text-[#667568]">Reliability: {measurement.quality}</div>}
+          {!compact && <div className="mt-1 text-xs font-medium text-[var(--muted)]">Reliability: {measurement.quality}</div>}
         </div>
       </div>
       {!compact && glossary && (
-        <div className="mt-3 grid gap-2 border-t border-[#eef0ed] pt-3 text-xs leading-5 text-[#667568]">
-          <p><span className="font-semibold text-[#17211b]">Where it should be:</span> {glossary.reference}</p>
-          {!compact && <p><span className="font-semibold text-[#17211b]">Use it for:</span> {glossary.trackFor}</p>}
+        <div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3 text-xs leading-5 text-[var(--muted)]">
+          <p><span className="font-semibold text-[var(--foreground)]">Where it should be:</span> {glossary.reference}</p>
+          {!compact && <p><span className="font-semibold text-[var(--foreground)]">Use it for:</span> {glossary.trackFor}</p>}
         </div>
       )}
     </Card>
@@ -50,7 +50,7 @@ function focusTone(level: FocusLevel) {
 }
 
 function focusBorderClass(level: FocusLevel) {
-  if (level === "high") return "border-[#e8b2a4]";
-  if (level === "moderate") return "border-[#ead58e]";
+  if (level === "high") return "border-[#e7c1b6]";
+  if (level === "moderate") return "border-[#ecdca7]";
   return "";
 }

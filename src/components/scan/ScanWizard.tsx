@@ -15,6 +15,7 @@ import { hasRequiredLandmarks } from "@/lib/pose/quality";
 import { listScans, saveScan } from "@/lib/storage/scans";
 import { PoseOverlay } from "@/components/pose/PoseOverlay";
 import { Card } from "@/components/ui/card";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 type CaptureStep = "front" | "leftSide" | "rightSide" | "back";
 type Step = "intro" | CaptureStep | "analyzing";
@@ -24,25 +25,25 @@ const CAPTURE_DELAY_SECONDS = 5;
 
 const copy: Record<CaptureStep, { label: string; title: string; instructions: string; use: string }> = {
   front: {
-    label: "FRONT PHOTO",
+    label: "Front photo",
     title: "Capture front view",
     instructions: "Face the camera. Frame head through hips, arms relaxed, camera level.",
     use: "Use front",
   },
   leftSide: {
-    label: "LEFT SIDE PHOTO",
+    label: "Left side photo",
     title: "Capture left side",
     instructions: "Turn left side to the camera. Stand naturally and avoid rotating toward the camera.",
     use: "Use left side",
   },
   rightSide: {
-    label: "RIGHT SIDE PHOTO",
+    label: "Right side photo",
     title: "Capture right side",
     instructions: "Turn right side to the camera. Stand naturally and avoid rotating toward the camera.",
     use: "Use right side",
   },
   back: {
-    label: "BACK PHOTO",
+    label: "Back photo",
     title: "Capture back view",
     instructions: "Face away from the camera. Keep head, shoulders, and hips visible.",
     use: "Use back",
@@ -251,65 +252,65 @@ export function ScanWizard({
   if (step === "intro") {
     return (
       <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-5 py-8 sm:justify-center">
-        <h1 className="text-4xl font-semibold leading-tight">POSTURE SCAN</h1>
-        <p className="mt-4 max-w-prose text-base leading-7 text-[#516156]">You will take four upper-body photos: front, left side, right side, and back.</p>
-        <div className="mt-5 rounded-md border border-[#d8ded7] bg-white p-4 text-sm leading-6 text-[#516156]">
+        <h1 className="text-4xl font-semibold leading-tight">Posture scan</h1>
+        <p className="mt-4 max-w-prose text-base leading-7 text-[var(--muted)]">You will take four upper-body photos: front, left side, right side, and back.</p>
+        <div className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--muted)] shadow-[var(--shadow-subtle)]">
           <p>
             Photos stay on this device unless you sign in and cloud sync is configured. Signed-in scans are stored privately for history,
             exports, and progress reviews, and you can delete cloud data from Account.
           </p>
-          <Link className="mt-2 inline-flex font-semibold text-[#237a57]" href="/privacy">
+          <Link className="mt-2 inline-flex font-semibold text-[var(--accent)]" href="/privacy">
             Privacy details
           </Link>
         </div>
         {scanLimitReached() ? (
-          <div className="mt-5 rounded-md border border-[#efd1c8] bg-[#fff8f5] p-4 text-sm leading-6 text-[#7c2d1f]">
+          <div className="mt-5 rounded-lg border border-[#e7c1b6] bg-[var(--danger-soft)] p-4 text-sm leading-6 text-[var(--danger)]">
             <div className="flex items-center gap-2 font-semibold">
               <Lock className="h-4 w-4" />
               Free scan limit reached
             </div>
             <p className="mt-1">Upgrade to Pro for unlimited scans, weekly progress reviews, and full plan history.</p>
-            <Link className="mt-3 inline-flex h-10 items-center rounded-md bg-[#17211b] px-3 text-sm font-semibold text-white" href="/pricing">
+            <ButtonLink className="mt-3" href="/pricing" variant="primary">
               View pricing
-            </Link>
+            </ButtonLink>
           </div>
         ) : null}
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           {scanSetupProtocol.slice(0, 5).map((item) => (
             <Card key={item.title} className="p-3">
               <div className="flex items-start gap-2">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#237a57]" />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)]" />
                 <div>
                   <h2 className="text-sm font-semibold">{item.title}</h2>
-                  <p className="mt-1 text-sm leading-5 text-[#516156]">{item.detail}</p>
+                  <p className="mt-1 text-sm leading-5 text-[var(--muted)]">{item.detail}</p>
                 </div>
               </div>
             </Card>
           ))}
         </div>
-        <button className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#17211b] px-4 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => startCamera("front")} disabled={scanLimitReached()}>
-          <Camera className="h-4 w-4" /> Begin Scan
-        </button>
+        <Button className="mt-8 h-12 px-4" variant="primary" onClick={() => startCamera("front")} disabled={scanLimitReached()}>
+          <Camera className="h-4 w-4" /> Begin scan
+        </Button>
       </div>
     );
   }
 
   if (!currentStep) {
-    return <div className="grid min-h-dvh place-items-center text-sm text-[#516156]">Analyzing scan...</div>;
+    return <div className="grid min-h-dvh place-items-center text-sm text-[var(--muted)]">Analyzing scan...</div>;
   }
 
   return (
     <div className="mx-auto min-h-dvh max-w-3xl px-4 py-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#237a57]">{copy[currentStep].label}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">{copy[currentStep].label}</p>
           <h1 className="text-2xl font-semibold">{copy[currentStep].title}</h1>
         </div>
-        <a href="/lab" className="rounded-md border border-[#d8ded7] p-2" title="Research mode"><FlaskConical className="h-4 w-4" /></a>
+        <a href="/lab" className="rounded-md border border-[var(--border)] bg-[var(--surface)] p-2 transition hover:bg-[var(--surface-soft)]" title="Research mode"><FlaskConical className="h-4 w-4" /></a>
       </div>
       <div className="mb-3 grid grid-cols-4 gap-2">
         {captureSteps.map((item, index) => (
-          <div key={item} className={`h-2 rounded-full ${index <= currentIndex ? "bg-[#237a57]" : "bg-[#d8ded7]"}`} />
+          <div key={item} className={`h-2 rounded-full ${index <= currentIndex ? "bg-[var(--accent)]" : "bg-[var(--border)]"}`} />
         ))}
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -332,23 +333,23 @@ export function ScanWizard({
         <PoseOverlay image={preview.image} pose={preview.pose} />
       </div>
       <canvas ref={canvasRef} className="hidden" />
-      <p className="mt-4 rounded-md border border-[#d8ded7] bg-white p-3 text-sm text-[#516156]">{message}</p>
+      <p className="mt-4 rounded-md border border-[var(--border)] bg-[var(--surface)] p-3 text-sm text-[var(--muted)]">{message}</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <button className="h-12 rounded-md border border-[#cfd8d1] font-semibold" onClick={startDelayedCapture} disabled={Boolean(countdown)}>
+        <Button className="h-12" variant="secondary" onClick={startDelayedCapture} disabled={Boolean(countdown)}>
           {countdown ? "Timer running" : "Start 5s timer"}
-        </button>
-        <button disabled={!poses[currentStep]} className="h-12 rounded-md bg-[#17211b] font-semibold text-white disabled:opacity-40" onClick={continueFlow}>
+        </Button>
+        <Button disabled={!poses[currentStep]} className="h-12" variant="primary" onClick={continueFlow}>
           {currentStep === "back" ? "Analyze" : copy[currentStep].use}
-        </button>
-        <button className="inline-flex h-10 items-center justify-center gap-2 text-sm text-[#516156]" onClick={countdown ? cancelCountdown : retake}>
+        </Button>
+        <button className="inline-flex h-10 items-center justify-center gap-2 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--primary)]" onClick={countdown ? cancelCountdown : retake}>
           <RotateCcw className="h-4 w-4" /> {countdown ? "Cancel timer" : "Retake"}
         </button>
-        <button className="inline-flex h-10 items-center justify-center gap-2 text-sm text-[#516156]" onClick={useSample}>
+        <button className="inline-flex h-10 items-center justify-center gap-2 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--primary)]" onClick={useSample}>
           <Wand2 className="h-4 w-4" /> Use sample
         </button>
       </div>
       {canAnalyze && currentStep !== "back" && (
-        <button className="mt-3 h-11 w-full rounded-md border border-[#cfd8d1] text-sm font-semibold" onClick={analyze}>Analyze completed scan</button>
+        <Button className="mt-3 h-11 w-full" variant="secondary" onClick={analyze}>Analyze completed scan</Button>
       )}
     </div>
   );

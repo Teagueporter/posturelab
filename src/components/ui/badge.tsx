@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 type BadgeTone = "default" | "muted" | "success" | "warning" | "danger";
 
 const toneClass: Record<BadgeTone, string> = {
-  default: "border-[#cfd8d1] bg-white text-[#17211b]",
-  muted: "border-[#d8ded7] bg-[#f6f7f4] text-[#516156]",
-  success: "border-[#cde4d4] bg-[#edf4ef] text-[#237a57]",
-  warning: "border-[#f0dfaa] bg-[#fff4d8] text-[#8a6416]",
-  danger: "border-[#eacbc0] bg-[#faeee9] text-[#a74731]",
+  default: "border-[var(--border-strong)] bg-[var(--surface)] text-[var(--foreground)]",
+  muted: "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted-strong)]",
+  success: "border-[#cde4d4] bg-[var(--accent-soft)] text-[var(--accent)]",
+  warning: "border-[#ecdca7] bg-[var(--warning-soft)] text-[var(--warning)]",
+  danger: "border-[#e7c1b6] bg-[var(--danger-soft)] text-[var(--danger)]",
 };
 
 export function Badge({
@@ -19,7 +19,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm border px-2 py-1 text-xs font-semibold leading-none",
+        "inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold leading-none",
         toneClass[tone],
         className,
       )}
