@@ -101,19 +101,20 @@ Supabase connector state:
 - Project creation cost returned by the connector: `$0/month` as rechecked on September 6, 2026
 - Existing visible projects are inactive and unrelated, so create a dedicated `posturelab` project instead of reusing them.
 
-1. Create a new Supabase project for this app after confirming the organization and cost.
-2. Run the migration in `supabase/migrations/20260906052834_initial_production_schema.sql`.
-3. Run `npm run supabase:live-check` after adding the Supabase env vars locally. It verifies the expected tables are reachable by the service role and confirms the `scan-images` bucket exists and is private without printing keys.
-4. Confirm RLS is enabled on all public tables.
-5. Confirm the `scan-images` bucket is private.
-6. In Supabase Auth, add these redirect URLs:
+1. Run `npm run supabase:project-plan` to print the connector-confirmed project target, approval phrase, migration path, redirect URLs, and verification steps without printing keys.
+2. Create a new Supabase project for this app after confirming the organization and cost.
+3. Run the migration in `supabase/migrations/20260906052834_initial_production_schema.sql`.
+4. Run `npm run supabase:live-check` after adding the Supabase env vars locally. It verifies the expected tables are reachable by the service role and confirms the `scan-images` bucket exists and is private without printing keys.
+5. Confirm RLS is enabled on all public tables.
+6. Confirm the `scan-images` bucket is private.
+7. In Supabase Auth, add these redirect URLs:
 
 ```text
 http://localhost:3000/auth/callback
 https://posturelab-six.vercel.app/auth/callback
 ```
 
-7. Copy the project URL, publishable key, and service role key into environment variables.
+8. Copy the project URL, publishable key, and service role key into environment variables.
 
 The service role key is only used on the server for billing webhook/customer synchronization. It must never be exposed to the browser.
 

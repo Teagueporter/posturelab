@@ -4,6 +4,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 ## Supabase
 
+- [ ] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.
 - [ ] Create Supabase project `posturelab` in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
 - [ ] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
 - [ ] Run `npm run supabase:live-check` after local Supabase env vars are installed.

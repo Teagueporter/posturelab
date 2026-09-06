@@ -78,6 +78,7 @@ npm run supabase:status
 
 ```bash
 npm run verify
+npm run supabase:project-plan
 npm run supabase:live-check
 npm run stripe:catalog-plan
 npm run stripe:live-check
@@ -92,6 +93,7 @@ npm run vercel:env-check
 Current local verification:
 
 - `npm run verify`: runs the secret scanner, Supabase schema checker, tests, lint, and production build
+- `npm run supabase:project-plan`: prints the connector-confirmed Supabase project target, approval phrase, migration, redirect URLs, and live-check steps without printing keys
 - `npm run supabase:live-check`: checks live Supabase tables and the private scan-image bucket after env vars are installed
 - `npm run stripe:catalog-plan`: prints Stripe CLI commands for the Pro monthly/yearly products and prices without printing keys
 - `npm run stripe:live-check`: checks live Stripe monthly/yearly recurring prices after env vars are installed
@@ -101,9 +103,9 @@ Current local verification:
 - `npm run launch:ready`: includes live Supabase, Stripe, and Vercel env checks for the final pre-charge gate and exits nonzero until ready
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 46 files passed, 145 tests passed
+- Current test suite: 47 files passed, 148 tests passed
 
-The setup, launch-status, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
+The setup, launch-status, Supabase project-plan, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 
 GitHub Actions runs `npm run verify` on pull requests and pushes to `main`.
 
