@@ -139,9 +139,9 @@ npm run supabase:status
 
 ## Stripe
 
-1. Run `npm run stripe:catalog-plan` to print the exact Stripe CLI commands for the monthly and yearly Pro products and prices. The helper prints object names, amounts, lookup keys, and env var names, but never prints Stripe API keys.
-2. Create a Product named `Posture Pro Monthly` and a recurring monthly Price at `$4.99`.
-3. Create a Product named `Posture Pro Yearly` and a recurring yearly Price at `$29`.
+1. Run `npm run stripe:catalog-plan` to print the exact Stripe CLI commands for one `Posture Pro` product with monthly and yearly prices. The helper prints object names, amounts, lookup keys, and env var names, but never prints Stripe API keys.
+2. Create a Product named `Posture Pro`.
+3. Create a recurring monthly Price at `$4.99` and a recurring yearly Price at `$29` on that same Product.
 4. Add the two Price IDs to `STRIPE_PRO_MONTHLY_PRICE_ID` and `STRIPE_PRO_YEARLY_PRICE_ID`.
 5. Run `npm run stripe:live-check` after adding the Stripe env vars locally. It verifies the configured monthly and yearly price IDs are active recurring prices with the expected billing intervals, USD amounts, lookup keys, and active products without printing keys.
 6. Create a webhook endpoint:

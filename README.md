@@ -101,7 +101,7 @@ Current local verification:
 - `npm run supabase:project-plan`: prints the connector-confirmed Supabase project target, approval phrase, migration, redirect URLs, and live-check steps without printing keys
 - `npm run supabase:migration-plan`: validates and summarizes the checked-in Supabase migration before applying it to a live project
 - `npm run supabase:live-check`: checks live Supabase tables and the private scan-image bucket after env vars are installed
-- `npm run stripe:catalog-plan`: prints Stripe CLI commands for the Pro monthly/yearly products and prices without printing keys
+- `npm run stripe:catalog-plan`: prints Stripe CLI commands for one Pro product with monthly/yearly prices without printing keys
 - `npm run stripe:live-check`: checks live Stripe monthly/yearly recurring prices, amounts, currency, lookup keys, and active products after env vars are installed
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
 - `npm run smoke:ready`: requires production health to report live Supabase and Stripe env wiring before launch

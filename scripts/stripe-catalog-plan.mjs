@@ -1,10 +1,14 @@
 import { pathToFileURL } from "node:url";
 
+export const stripeProduct = {
+  name: "Posture Pro",
+  description: "PostureLab Pro subscription.",
+  placeholder: "prod_REPLACE_PRO",
+};
+
 export const stripeCatalogItems = [
   {
     key: "monthly",
-    productName: "Posture Pro Monthly",
-    productDescription: "PostureLab Pro subscription billed monthly.",
     lookupKey: "posture_pro_monthly",
     unitAmount: 499,
     interval: "month",
@@ -13,8 +17,6 @@ export const stripeCatalogItems = [
   },
   {
     key: "yearly",
-    productName: "Posture Pro Yearly",
-    productDescription: "PostureLab Pro subscription billed yearly.",
     lookupKey: "posture_pro_yearly",
     unitAmount: 2900,
     interval: "year",
@@ -23,28 +25,29 @@ export const stripeCatalogItems = [
   },
 ];
 
-export function buildStripeCatalogPlan({ catalogItems = stripeCatalogItems } = {}) {
+export function buildStripeCatalogPlan({ catalogItems = stripeCatalogItems, product = stripeProduct } = {}) {
   const lines = [
     "Stripe catalog setup plan",
     "",
     "Run these with the Stripe CLI after selecting the right Stripe mode.",
     "These commands do not include or print Stripe API keys.",
     "",
+    "# Posture Pro product",
+    [
+      "stripe products create",
+      `--name ${quoteShell(product.name)}`,
+      `--description ${quoteShell(product.description)}`,
+    ].join(" "),
+    `Use the returned product id in place of ${product.placeholder} for both prices.`,
+    "",
   ];
 
   for (const item of catalogItems) {
-    lines.push(`# ${item.productName}`);
-    lines.push(
-      [
-        "stripe products create",
-        `--name ${quoteShell(item.productName)}`,
-        `--description ${quoteShell(item.productDescription)}`,
-      ].join(" "),
-    );
+    lines.push(`# Posture Pro ${item.key}`);
     lines.push(
       [
         "stripe prices create",
-        `--product ${item.productPlaceholder}`,
+        `--product ${product.placeholder}`,
         "--currency usd",
         `--unit-amount ${item.unitAmount}`,
         `--recurring interval=${item.interval}`,

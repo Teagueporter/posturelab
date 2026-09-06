@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { buildStripeCatalogPlan, stripeCatalogItems } from "../scripts/stripe-catalog-plan.mjs";
+import { buildStripeCatalogPlan, stripeCatalogItems, stripeProduct } from "../scripts/stripe-catalog-plan.mjs";
 
 describe("Stripe catalog plan", () => {
-  it("prints monthly and yearly product and price commands", () => {
+  it("prints one Pro product with monthly and yearly price commands", () => {
     const output = buildStripeCatalogPlan();
 
-    expect(output).toContain('stripe products create --name "Posture Pro Monthly"');
-    expect(output).toContain("--unit-amount 499 --recurring interval=month --lookup-key posture_pro_monthly");
-    expect(output).toContain('stripe products create --name "Posture Pro Yearly"');
-    expect(output).toContain("--unit-amount 2900 --recurring interval=year --lookup-key posture_pro_yearly");
+    expect(stripeProduct.name).toBe("Posture Pro");
+    expect(output.match(/stripe products create/g)?.length).toBe(1);
+    expect(output).toContain('stripe products create --name "Posture Pro"');
+    expect(output).toContain("Use the returned product id in place of prod_REPLACE_PRO for both prices.");
+    expect(output).toContain("--product prod_REPLACE_PRO --currency usd --unit-amount 499 --recurring interval=month --lookup-key posture_pro_monthly");
+    expect(output).toContain("--product prod_REPLACE_PRO --currency usd --unit-amount 2900 --recurring interval=year --lookup-key posture_pro_yearly");
   });
 
   it("maps prices to the app env vars", () => {
