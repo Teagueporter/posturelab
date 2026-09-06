@@ -17,6 +17,7 @@
     "supabase:migration-plan": "node scripts/supabase-migration-plan.mjs",
     "supabase:live-check": "node scripts/check-live-supabase.mjs",
     "stripe:catalog-plan": "node scripts/stripe-catalog-plan.mjs",
+    "stripe:cli-check": "node scripts/check-stripe-cli.mjs",
     "stripe:key-plan": "node scripts/stripe-key-plan.mjs",
     "stripe:webhook-plan": "node scripts/stripe-webhook-plan.mjs",
     "stripe:live-check": "node scripts/check-live-stripe.mjs",

@@ -24,6 +24,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 ## Stripe
 
+- [ ] Run `npm run stripe:cli-check`; if it fails, use Stripe Dashboard setup with the same settings from the plan commands.
 - [ ] Run `npm run stripe:catalog-plan` and use its generated Stripe CLI commands for the Pro catalog.
 - [ ] Create one `Posture Pro` product with monthly and yearly prices.
 - [ ] Run `npm run stripe:key-plan` before creating the runtime restricted key.

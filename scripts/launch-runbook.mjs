@@ -27,6 +27,7 @@ export function buildLaunchRunbook({
     "- Fill local Supabase env vars, then run npm run supabase:live-check.",
     "",
     "3. Stripe",
+    "- Run npm run stripe:cli-check. If it fails, use the Stripe Dashboard with the same settings from the plan commands.",
     "- Run npm run stripe:catalog-plan.",
     `- Create recurring prices for env vars: ${stripeEnvNames.join(", ")}.`,
     "- Run npm run stripe:key-plan.",
