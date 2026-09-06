@@ -51,6 +51,33 @@ describe("launch next actions", () => {
     expect(plan.actions.map((action) => action.key)).toEqual(["final-gate"]);
     expect(formatLaunchNextActions(plan)).toContain("READY FOR FINAL GATE");
   });
+
+  it("asks only for remaining Supabase configuration after public Supabase env is set", () => {
+    const plan = buildLaunchNextActions({
+      env: {
+        NODE_ENV: "test",
+        NEXT_PUBLIC_APP_URL: "https://posturelab-six.vercel.app",
+        NEXT_PUBLIC_SUPABASE_URL: "https://project.supabase.co",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_example",
+      } as NodeJS.ProcessEnv,
+      stripeCli: {
+        ok: false,
+        installed: true,
+        authenticated: false,
+        version: "1.50.10",
+        versionOk: true,
+        account: {},
+        detail: "Stripe CLI is installed but not authenticated for profile default",
+      },
+    });
+
+    const output = formatLaunchNextActions(plan);
+
+    expect(plan.actions[0].key).toBe("supabase-config");
+    expect(output).toContain("Finish Supabase configuration");
+    expect(output).toContain("SUPABASE_SERVICE_ROLE_KEY");
+    expect(output).not.toContain("Approve creating the Supabase project");
+  });
 });
 
 function validEnv() {

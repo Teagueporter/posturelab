@@ -28,12 +28,22 @@ export function buildLaunchNextActions({
   const actions = [];
 
   if (missingSupabase.length > 0) {
-    actions.push({
-      key: "supabase-project",
-      title: "Create and configure Supabase",
-      detail: `Approve project creation, apply ${supabasePlan.migrationPath}, add Auth redirect URLs, then fill ${missingSupabase.join(", ")}.`,
-      command: `Approve creating the Supabase project ${supabasePlan.projectName} in ${supabasePlan.organizationName} for ${supabasePlan.quotedCost}.`,
-    });
+    const publicSupabaseReady = Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+    if (publicSupabaseReady) {
+      actions.push({
+        key: "supabase-config",
+        title: "Finish Supabase configuration",
+        detail: `Project URL and publishable key are set. Add Auth redirect URLs, fill ${missingSupabase.join(", ")}, then run npm run supabase:live-check.`,
+        command: "Supabase Dashboard: Authentication > URL Configuration and Project Settings > API",
+      });
+    } else {
+      actions.push({
+        key: "supabase-project",
+        title: "Create and configure Supabase",
+        detail: `Approve project creation, apply ${supabasePlan.migrationPath}, add Auth redirect URLs, then fill ${missingSupabase.join(", ")}.`,
+        command: `Approve creating the Supabase project ${supabasePlan.projectName} in ${supabasePlan.organizationName} for ${supabasePlan.quotedCost}.`,
+      });
+    }
   }
 
   if (!stripeCli.ok) {
