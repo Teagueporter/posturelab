@@ -13,6 +13,7 @@
     "secrets:check": "node scripts/check-secrets.mjs",
     "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
     "supabase:project-plan": "node scripts/supabase-project-plan.mjs",
+    "supabase:migration-plan": "node scripts/supabase-migration-plan.mjs",
     "supabase:live-check": "node scripts/check-live-supabase.mjs",
     "stripe:catalog-plan": "node scripts/stripe-catalog-plan.mjs",
     "stripe:live-check": "node scripts/check-live-stripe.mjs",

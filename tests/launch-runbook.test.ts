@@ -17,6 +17,7 @@ describe("launch runbook", () => {
     expect(output).toContain(
       "Approval required before creation: Approve creating the Supabase project posturelab in teagueporter's projects for $0/month.",
     );
+    expect(output).toContain("npm run supabase:migration-plan");
     expect(output).toContain("npm run supabase:live-check");
     expect(output).toContain("npm run stripe:live-check");
     expect(output).toContain("npm run vercel:env-check");

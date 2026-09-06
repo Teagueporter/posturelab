@@ -21,6 +21,7 @@ export function buildLaunchRunbook({
     "2. Supabase",
     "- Run npm run supabase:project-plan.",
     `- Approval required before creation: Approve creating the Supabase project ${supabasePlan.projectName} in ${supabasePlan.organizationName} for ${supabasePlan.quotedCost}.`,
+    "- Run npm run supabase:migration-plan.",
     `- Apply ${supabasePlan.migrationPath}.`,
     `- Add Auth redirect URLs: ${supabasePlan.redirectUrls.join(", ")}.`,
     "- Fill local Supabase env vars, then run npm run supabase:live-check.",

@@ -18,6 +18,7 @@ describe("CI workflow", () => {
     expect(packageJson.scripts.verify).toContain("npm run supabase:schema-check");
     expect(packageJson.scripts["env:template-check"]).toBe("node scripts/check-env-template.mjs");
     expect(packageJson.scripts["supabase:project-plan"]).toBe("node scripts/supabase-project-plan.mjs");
+    expect(packageJson.scripts["supabase:migration-plan"]).toBe("node scripts/supabase-migration-plan.mjs");
     expect(packageJson.scripts["supabase:live-check"]).toBe("node scripts/check-live-supabase.mjs");
     expect(packageJson.scripts["stripe:catalog-plan"]).toBe("node scripts/stripe-catalog-plan.mjs");
     expect(packageJson.scripts["stripe:live-check"]).toBe("node scripts/check-live-stripe.mjs");

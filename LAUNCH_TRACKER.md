@@ -15,6 +15,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 - [x] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.
 - [x] Re-verified with the Supabase connector on 2026-09-06 12:03 MDT: organization `teagueporter's projects` (`vercel_icfg_qqsgYASShKraJS8qi3PBxC9e`) and project cost `$0/month`.
 - [ ] Create Supabase project `posturelab` in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
+- [ ] Run `npm run supabase:migration-plan` before applying SQL to the live project.
 - [ ] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
 - [ ] Run `npm run supabase:live-check` after local Supabase env vars are installed.
 - [ ] Confirm RLS, private `scan-images` storage, and folder-scoped storage policies.
