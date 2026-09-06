@@ -118,4 +118,13 @@ describe("Stripe billing integration contracts", () => {
     expect(setupDoc).toContain("review Stripe Tax");
     expect(checkoutAction).not.toContain("automatic_tax");
   });
+
+  it("uses one Stripe API version constant for runtime and live readiness checks", () => {
+    const runtimeClient = source("src/lib/stripe/server.ts");
+    const liveCheck = source("scripts/check-live-stripe.mjs");
+
+    expect(source("src/lib/stripe/config.ts")).toContain("stripeApiVersion");
+    expect(runtimeClient).toContain("apiVersion: stripeApiVersion");
+    expect(liveCheck).toContain("apiVersion: stripeApiVersion");
+  });
 });

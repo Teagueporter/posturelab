@@ -1,9 +1,10 @@
 import Stripe from "stripe";
 import { getRequiredServerEnv } from "@/lib/env";
+import { stripeApiVersion } from "@/lib/stripe/config";
 
 export function createStripeClient() {
   return new Stripe(getRequiredServerEnv("STRIPE_RESTRICTED_KEY"), {
-    apiVersion: "2026-08-26.dahlia",
+    apiVersion: stripeApiVersion,
     typescript: true,
   });
 }

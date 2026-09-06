@@ -1,5 +1,6 @@
 import { pathToFileURL } from "node:url";
 import Stripe from "stripe";
+import { stripeApiVersion } from "../src/lib/stripe/config.ts";
 import { envWithLocalFile, invalidEnvMessages } from "./setup-check.mjs";
 import { stripeCatalogItems } from "./stripe-catalog-plan.mjs";
 
@@ -77,7 +78,7 @@ function createLiveStripeClient(env) {
   if (!env.STRIPE_RESTRICTED_KEY) return null;
 
   return new Stripe(env.STRIPE_RESTRICTED_KEY, {
-    apiVersion: "2026-08-26.dahlia",
+    apiVersion: stripeApiVersion,
     typescript: true,
   });
 }
