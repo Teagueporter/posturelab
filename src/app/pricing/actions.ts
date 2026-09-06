@@ -39,11 +39,15 @@ export async function startProCheckout(formData: FormData) {
   const stripe = createStripeClient();
   const appUrl = getAppUrl();
 
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("subscriptions")
     .select("stripe_customer_id")
     .eq("user_id", user.id)
     .maybeSingle();
+  if (existingError) {
+    logActionError(context, existingError, { interval, reason: "subscription-read-failed" });
+    redirect("/pricing?message=Unable%20to%20start%20checkout");
+  }
 
   let customerId = existing?.stripe_customer_id ?? null;
   if (!customerId) {
@@ -52,7 +56,7 @@ export async function startProCheckout(formData: FormData) {
       metadata: { user_id: user.id },
     });
     customerId = customer.id;
-    await supabase.from("subscriptions").upsert(
+    const { error: customerUpsertError } = await supabase.from("subscriptions").upsert(
       {
         user_id: user.id,
         stripe_customer_id: customerId,
@@ -60,6 +64,10 @@ export async function startProCheckout(formData: FormData) {
       },
       { onConflict: "user_id" },
     );
+    if (customerUpsertError) {
+      logActionError(context, customerUpsertError, { interval, reason: "customer-map-upsert-failed" });
+      redirect("/pricing?message=Unable%20to%20start%20checkout");
+    }
   }
 
   const checkoutParams: CheckoutParams = {

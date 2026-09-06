@@ -24,6 +24,17 @@ describe("Stripe billing integration contracts", () => {
     expect(accountActions).not.toContain("payment_method_types");
   });
 
+  it("fails closed when billing action subscription lookups fail", () => {
+    const accountActions = source("src/app/account/actions.ts");
+    const checkoutAction = source("src/app/pricing/actions.ts");
+
+    expect(accountActions).toContain("reason: \"billing-account-read-failed\"");
+    expect(accountActions).toContain("Unable%20to%20open%20billing%20portal");
+    expect(checkoutAction).toContain("reason: \"subscription-read-failed\"");
+    expect(checkoutAction).toContain("reason: \"customer-map-upsert-failed\"");
+    expect(checkoutAction.match(/Unable%20to%20start%20checkout/g)?.length).toBeGreaterThanOrEqual(3);
+  });
+
   it("documents Stripe restricted-key permissions that match the runtime API calls", () => {
     const setupDoc = source("PRODUCTION_SETUP.md");
 

@@ -21,11 +21,15 @@ export async function openCustomerPortal() {
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase!
+  const { data, error } = await supabase!
     .from("subscriptions")
     .select("stripe_customer_id")
     .eq("user_id", user.id)
     .maybeSingle();
+  if (error) {
+    logActionError(context, error, { reason: "billing-account-read-failed" });
+    redirect("/account?message=Unable%20to%20open%20billing%20portal");
+  }
 
   if (!data?.stripe_customer_id) {
     logActionDone(context, "blocked", { reason: "missing-stripe-customer" });
