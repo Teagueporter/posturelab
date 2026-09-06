@@ -1,16 +1,18 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Camera, Check, FlaskConical, RotateCcw, Wand2 } from "lucide-react";
+import { Camera, Check, FlaskConical, Lock, RotateCcw, Wand2 } from "lucide-react";
 import { analyzeScan } from "@/lib/measurements/analyze";
+import { hasReachedFreeScanLimit } from "@/lib/billing/entitlements";
 import type { PoseResult } from "@/lib/pose/types";
 import { createMediaPipePoseDetector } from "@/lib/pose/mediapipe";
 import { POSE } from "@/lib/pose/landmarks";
 import { assessViewQuality } from "@/lib/pose/scan-quality";
 import { scanSetupProtocol } from "@/lib/pose/setup-protocol";
 import { hasRequiredLandmarks } from "@/lib/pose/quality";
-import { saveScan } from "@/lib/storage/scans";
+import { listScans, saveScan } from "@/lib/storage/scans";
 import { PoseOverlay } from "@/components/pose/PoseOverlay";
 import { Card } from "@/components/ui/card";
 
@@ -47,7 +49,15 @@ const copy: Record<CaptureStep, { label: string; title: string; instructions: st
   },
 };
 
-export function ScanWizard() {
+export function ScanWizard({
+  cloudScanCount = 0,
+  isPro = false,
+  paywallEnabled = false,
+}: {
+  cloudScanCount?: number;
+  isPro?: boolean;
+  paywallEnabled?: boolean;
+}) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,6 +74,10 @@ export function ScanWizard() {
   const canAnalyze = captureSteps.every((item) => images[item] && poses[item]);
 
   async function startCamera(next: CaptureStep) {
+    if (scanLimitReached()) {
+      setMessage("Free accounts include one saved scan. Upgrade to Pro for unlimited scan history and weekly progress reviews.");
+      return;
+    }
     cancelCountdown();
     stopCamera();
     setStep(next);
@@ -189,8 +203,22 @@ export function ScanWizard() {
       rightSideImage: images.rightSide,
       backImage: images.back,
     });
+    if (scanLimitReached()) {
+      setMessage("Free accounts include one saved scan. Upgrade to Pro before saving another scan.");
+      setStep("intro");
+      return;
+    }
     saveScan(scan);
     router.push(`/results/${scan.id}`);
+  }
+
+  function scanLimitReached() {
+    return hasReachedFreeScanLimit({
+      cloudScanCount,
+      isPro,
+      localScanCount: listScans().length,
+      paywallEnabled,
+    });
   }
 
   function retake() {
@@ -225,6 +253,27 @@ export function ScanWizard() {
       <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-5 py-8 sm:justify-center">
         <h1 className="text-4xl font-semibold leading-tight">POSTURE SCAN</h1>
         <p className="mt-4 max-w-prose text-base leading-7 text-[#516156]">You will take four upper-body photos: front, left side, right side, and back.</p>
+        <div className="mt-5 rounded-md border border-[#d8ded7] bg-white p-4 text-sm leading-6 text-[#516156]">
+          <p>
+            Photos stay on this device unless you sign in and cloud sync is configured. Signed-in scans are stored privately for history,
+            exports, and progress reviews, and you can delete cloud data from Account.
+          </p>
+          <Link className="mt-2 inline-flex font-semibold text-[#237a57]" href="/privacy">
+            Privacy details
+          </Link>
+        </div>
+        {scanLimitReached() ? (
+          <div className="mt-5 rounded-md border border-[#efd1c8] bg-[#fff8f5] p-4 text-sm leading-6 text-[#7c2d1f]">
+            <div className="flex items-center gap-2 font-semibold">
+              <Lock className="h-4 w-4" />
+              Free scan limit reached
+            </div>
+            <p className="mt-1">Upgrade to Pro for unlimited scans, weekly progress reviews, and full plan history.</p>
+            <Link className="mt-3 inline-flex h-10 items-center rounded-md bg-[#17211b] px-3 text-sm font-semibold text-white" href="/pricing">
+              View pricing
+            </Link>
+          </div>
+        ) : null}
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           {scanSetupProtocol.slice(0, 5).map((item) => (
             <Card key={item.title} className="p-3">
@@ -238,7 +287,7 @@ export function ScanWizard() {
             </Card>
           ))}
         </div>
-        <button className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#17211b] px-4 font-semibold text-white" onClick={() => startCamera("front")}>
+        <button className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#17211b] px-4 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={() => startCamera("front")} disabled={scanLimitReached()}>
           <Camera className="h-4 w-4" /> Begin Scan
         </button>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Camera, Dumbbell, ExternalLink, FileText, History, Info, Ruler } from "lucide-react";
 import { PoseOverlay } from "@/components/pose/PoseOverlay";
@@ -12,13 +13,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { buildBodyFindings, evidenceTakeaways, severityLabel, type BodyFindingSeverity } from "@/lib/interpretation/body-findings";
 import { buildTrackingScore } from "@/lib/interpretation/scan-summary";
 import type { ScanAnalysis } from "@/lib/measurements/types";
-import { getScan } from "@/lib/storage/scans";
+import { deleteScan, getScan, hydrateScansFromCloud } from "@/lib/storage/scans";
 
 export function ResultsView({ scanId }: { scanId: string }) {
+  const router = useRouter();
   const [scan, setScan] = useState<ScanAnalysis>();
 
   useEffect(() => {
-    queueMicrotask(() => setScan(getScan(scanId)));
+    queueMicrotask(() => {
+      const localScan = getScan(scanId);
+      setScan(localScan);
+      if (!localScan) {
+        void hydrateScansFromCloud().then((scans) => setScan(scans.find((item) => item.id === scanId)));
+      }
+    });
   }, [scanId]);
 
   if (!scan) {
@@ -32,6 +40,14 @@ export function ResultsView({ scanId }: { scanId: string }) {
 
   const trackingScore = buildTrackingScore(scan);
 
+  function handleDelete() {
+    if (!scan) return;
+    const confirmed = window.confirm("Delete this scan and its stored photos? This cannot be undone.");
+    if (!confirmed) return;
+    deleteScan(scan.id);
+    router.push("/history");
+  }
+
   return (
     <main className="mx-auto min-h-dvh max-w-5xl overflow-hidden px-5 py-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
@@ -40,6 +56,12 @@ export function ResultsView({ scanId }: { scanId: string }) {
           <ButtonLink href="/measurements"><Ruler className="h-4 w-4" />Metrics</ButtonLink>
           <ButtonLink href="/report"><FileText className="h-4 w-4" />Report</ButtonLink>
           <ButtonLink href="/history"><History className="h-4 w-4" />History</ButtonLink>
+          <button
+            onClick={handleDelete}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#e8b2a4] bg-white px-3 text-sm font-semibold text-[#9d3b2b] transition-colors hover:bg-[#fff8f5]"
+          >
+            Delete
+          </button>
         </div>
       </div>
       <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">POSTURE ANALYSIS</h1>

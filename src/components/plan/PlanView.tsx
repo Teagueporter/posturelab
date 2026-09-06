@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Activity, AlertTriangle, Camera, Check, ChevronDown, ExternalLink, FileText, History, Link as LinkIcon, Ruler, Target } from "lucide-react";
+import { Activity, AlertTriangle, Camera, Check, ChevronDown, ExternalLink, FileText, History, Link as LinkIcon, Lock, Ruler, Target } from "lucide-react";
 import { buildBodyFindings, evidenceTakeaways, severityLabel, type BodyFinding, type BodyFindingSeverity } from "@/lib/interpretation/body-findings";
 import { decisionRules, evidenceNotes, protocolPhases, routine, type ExerciseLevel, type RoutineItem } from "@/lib/interpretation/rules";
 import { baselineMeasurement, latestMeasurement, measurementDelta, measurementTargets, measurementTrends, type MeasurementTrend } from "@/lib/interpretation/progress";
-import { buildWeeklyProgressReview } from "@/lib/interpretation/scan-summary";
+import { buildWeeklyProgressReview, weeklyReviewStartKey } from "@/lib/interpretation/scan-summary";
 import type { ScanAnalysis } from "@/lib/measurements/types";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getTodayCheckIn, listCheckIns, saveCheckIn, summarizeCheckIns, todayKey, type CheckIn } from "@/lib/storage/checkins";
-import { listScans } from "@/lib/storage/scans";
-import { completionSummary, isWorkoutComplete, listWorkoutCompletions, setWorkoutComplete, type WorkoutCompletion } from "@/lib/storage/workouts";
+import { hydrateCheckInsFromCloud, getTodayCheckIn, listCheckIns, saveCheckIn, summarizeCheckIns, todayKey, type CheckIn } from "@/lib/storage/checkins";
+import { hydrateScansFromCloud, listScans } from "@/lib/storage/scans";
+import { hydrateWorkoutCompletionsFromCloud, completionSummary, isWorkoutComplete, listWorkoutCompletions, setWorkoutComplete, type WorkoutCompletion } from "@/lib/storage/workouts";
+import { syncWeeklyReviewToCloud } from "@/lib/storage/cloud";
 
 type CheckInDraft = Omit<CheckIn, "id" | "createdAt"> & { id?: string };
 
@@ -50,13 +51,14 @@ const exerciseReferenceLinks: Record<string, { label: string; url: string }> = {
   },
 };
 
-export function PlanView() {
+export function PlanView({ isPro = false, paywallEnabled = false }: { isPro?: boolean; paywallEnabled?: boolean }) {
   const [scans, setScans] = useState<ScanAnalysis[]>([]);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [checkInForm, setCheckInForm] = useState<CheckInDraft>(() => todayCheckInDraft());
   const [completions, setCompletions] = useState(() => completionSummary(14));
   const [workoutCompletions, setWorkoutCompletions] = useState<WorkoutCompletion[]>([]);
   const [completedToday, setCompletedToday] = useState(() => new Set(routine.filter((item) => isWorkoutComplete(item.name)).map((item) => item.name)));
+  const [clientDataReady, setClientDataReady] = useState(false);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -66,6 +68,17 @@ export function PlanView() {
       setWorkoutCompletions(listWorkoutCompletions());
       setCompletions(completionSummary(14));
       setCompletedToday(new Set(routine.filter((item) => isWorkoutComplete(item.name)).map((item) => item.name)));
+      setClientDataReady(true);
+      void hydrateScansFromCloud().then(setScans);
+      void hydrateCheckInsFromCloud().then((cloudCheckIns) => {
+        setCheckIns(cloudCheckIns);
+        setCheckInForm(todayCheckInDraft());
+      });
+      void hydrateWorkoutCompletionsFromCloud().then((cloudCompletions) => {
+        setWorkoutCompletions(cloudCompletions);
+        setCompletions(completionSummary(14));
+        setCompletedToday(new Set(routine.filter((item) => isWorkoutComplete(item.name)).map((item) => item.name)));
+      });
     });
   }, []);
 
@@ -88,19 +101,28 @@ export function PlanView() {
     [findings, checkInForm, workoutCompletions],
   );
   const checkInSummary = summarizeCheckIns(checkIns);
-  const weeklyReview = buildWeeklyProgressReview({
-    scans,
-    checkIns,
-    completions: workoutCompletions,
-    routineCount: Math.max(1, planExercises.length),
-  });
+  const weeklyReview = useMemo(
+    () => buildWeeklyProgressReview({
+      scans,
+      checkIns,
+      completions: workoutCompletions,
+      routineCount: Math.max(1, planExercises.length),
+    }),
+    [scans, checkIns, workoutCompletions, planExercises.length],
+  );
+  const weekStart = weeklyReviewStartKey();
   const trends = measurementTrends(scans);
+
+  useEffect(() => {
+    if (!isPro || !clientDataReady) return;
+    void syncWeeklyReviewToCloud(weekStart, weeklyReview);
+  }, [clientDataReady, isPro, weekStart, weeklyReview]);
 
   return (
     <main className="mx-auto min-h-dvh max-w-6xl overflow-hidden px-5 py-6">
       <Header />
       <PlanSummary latestScan={latestScan} findings={findings} exerciseCount={planExercises.length} />
-      <WeeklyReview summary={weeklyReview} />
+      {paywallEnabled && !isPro ? <WeeklyReviewUpgrade /> : <WeeklyReview summary={weeklyReview} />}
       <TodayRoutine exercises={planExercises} completedToday={completedToday} onToggle={toggle} />
       <DailyCheckIn
         checkInForm={checkInForm}
@@ -111,6 +133,28 @@ export function PlanView() {
       <ExerciseGuides exercises={planExercises} completedToday={completedToday} onToggle={toggle} />
       <ProgressAndEvidence scans={scans} trends={trends} completions={completions} routineCount={planExercises.length} />
     </main>
+  );
+}
+
+function WeeklyReviewUpgrade() {
+  return (
+    <Card className="mt-5 border-[#efd1c8] bg-[#fff8f5]">
+      <CardContent>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-[#9d3b2b]">
+              <Lock className="h-4 w-4" />
+              Pro weekly review
+            </p>
+            <h2 className="mt-1 text-xl font-semibold">Unlock progress reviews after repeat scans.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6c514b]">
+              Pro compares scan trends, check-ins, and workout adherence so the plan changes based on what is actually improving.
+            </p>
+          </div>
+          <ButtonLink href="/pricing" variant="primary">View pricing</ButtonLink>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

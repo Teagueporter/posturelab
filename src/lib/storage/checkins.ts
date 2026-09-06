@@ -1,5 +1,7 @@
 "use client";
 
+import { hydrateLocalCheckInsFromCloud, syncCheckInToCloud } from "@/lib/storage/cloud";
+
 const KEY = "posturelab.checkins.v1";
 
 export type CheckIn = {
@@ -37,6 +39,13 @@ export function getTodayCheckIn(date = todayKey()) {
   return listCheckIns().find((checkIn) => checkIn.date === date);
 }
 
+export async function hydrateCheckInsFromCloud() {
+  if (typeof window === "undefined") return [];
+  const checkIns = await hydrateLocalCheckInsFromCloud(listCheckIns());
+  window.localStorage.setItem(KEY, JSON.stringify(checkIns));
+  return checkIns;
+}
+
 export function saveCheckIn(input: Omit<CheckIn, "id" | "createdAt"> & { id?: string }) {
   const existing = listCheckIns();
   const remaining = existing.filter((checkIn) => checkIn.date !== input.date);
@@ -52,6 +61,7 @@ export function saveCheckIn(input: Omit<CheckIn, "id" | "createdAt"> & { id?: st
   };
   const checkIns = [next, ...remaining].sort((a, b) => b.date.localeCompare(a.date));
   window.localStorage.setItem(KEY, JSON.stringify(checkIns));
+  void syncCheckInToCloud(next);
   return next;
 }
 

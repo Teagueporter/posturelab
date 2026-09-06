@@ -1,6 +1,6 @@
 # PostureLab
 
-PostureLab is a measurement-first posture scan MVP built with Next.js, TypeScript, and MediaPipe. It captures guided posture photos, turns pose landmarks into repeatable measurements, groups those metrics into body-level findings, and builds a corrective exercise plan from the latest scan.
+PostureLab is a measurement-first posture scan web app built with Next.js, TypeScript, and MediaPipe. It captures guided posture photos, turns pose landmarks into repeatable measurements, groups those metrics into body-level findings, and builds a corrective exercise plan from the latest scan.
 
 This is a portfolio project and local prototype for posture self-tracking. It is not medical software and does not diagnose medical conditions.
 
@@ -11,12 +11,20 @@ This is a portfolio project and local prototype for posture self-tracking. It is
 - Scan quality checks for repeatable setup and cleaner comparison
 - Body-level findings for forward head posture, shoulder symmetry, trunk stacking, and upper-back curve proxy signals
 - Personalized corrective exercise plan generated from the latest scan
-- Scan history, workout completion, check-ins, weekly progress trends, and report views
-- LocalStorage persistence with no backend required
+- Scan history, workout completion, check-ins, Pro weekly reviews, and report views
+- Report copy/download plus authenticated cloud data export
+- Health endpoint for deployment smoke checks
+- Installable web-app manifest and generated app icons
+- Sitemap and robots routes for public web discovery
+- Social sharing metadata with a generated Open Graph preview image
+- Vercel Web Analytics and Speed Insights hooks for launch observability
+- Structured JSON route and server-action logs for launch-critical endpoints and mutations
+- LocalStorage persistence with optional Supabase cloud sync
+- Production-ready scaffolding for Supabase Auth, Supabase Storage, Supabase Postgres, and Stripe subscriptions
 
 ## Screenshots
 
-Screenshots or a short demo GIF should be added after the app is published.
+Screenshots or a short demo GIF should be added after the paid-service setup is finished.
 
 - Home and workflow overview
 - Guided scan capture
@@ -33,6 +41,9 @@ Screenshots or a short demo GIF should be added after the app is published.
 - Vitest
 - ESLint
 - LocalStorage
+- Supabase
+- Stripe Checkout and Billing Portal
+- Vercel Web Analytics and Speed Insights
 
 ## Local Development
 
@@ -48,19 +59,36 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+For paid-web-app setup, see [PRODUCTION_SETUP.md](/Users/teague/Documents/PostureProject/PRODUCTION_SETUP.md).
+
+## Local Supabase
+
+The repo includes Supabase CLI config and migrations for local database testing:
+
+```bash
+npm run supabase:start
+npm run supabase:reset
+npm run supabase:status
+```
+
+`npm run supabase:status` prints local values using the same env var names expected by the app.
+
 ## Verification
 
 ```bash
-npm test
-npm run lint
-npm run build
+npm run verify
+npm run smoke:prod
 ```
 
 Current local verification:
 
-- `npm test`: 15 files passed, 29 tests passed
-- `npm run lint`: passed
-- `npm run build`: passed with Node `>=20.9.0`
+- `npm run verify`: runs the secret scanner, Supabase schema checker, tests, lint, and production build
+- `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
+- Current test suite: 38 files passed, 113 tests passed
+
+The setup checker validates local environment variable shape. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
+
+GitHub Actions runs `npm run verify` on pull requests and pushes to `main`.
 
 ## Project Boundary
 
@@ -69,8 +97,8 @@ PostureLab estimates posture patterns from 2D photo landmarks. The output is int
 ## Roadmap
 
 - Add screenshots and a short demo GIF
-- Add exportable scan reports
 - Improve onboarding for camera positioning and lighting
-- Add optional cloud sync and authentication
 - Add calibration helpers for more consistent measurements
+- Connect production Supabase and Stripe credentials in Vercel
+- Replace draft privacy/terms copy before charging users
 - Deploy a public demo with clear privacy and safety boundaries

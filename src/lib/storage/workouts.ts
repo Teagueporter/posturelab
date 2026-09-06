@@ -1,5 +1,7 @@
 "use client";
 
+import { deleteWorkoutCompletionFromCloud, hydrateLocalWorkoutCompletionsFromCloud, syncWorkoutCompletionToCloud } from "@/lib/storage/cloud";
+
 const KEY = "posturelab.workouts.v1";
 
 export type WorkoutCompletion = {
@@ -29,6 +31,7 @@ export function setWorkoutComplete(itemName: string, complete: boolean, date = t
   const remaining = completions.filter((completion) => !(completion.itemName === itemName && completion.date === date));
   if (!complete) {
     window.localStorage.setItem(KEY, JSON.stringify(remaining));
+    void deleteWorkoutCompletionFromCloud(itemName, date);
     return remaining;
   }
   const next = [
@@ -41,6 +44,7 @@ export function setWorkoutComplete(itemName: string, complete: boolean, date = t
     },
   ];
   window.localStorage.setItem(KEY, JSON.stringify(next));
+  void syncWorkoutCompletionToCloud(next[next.length - 1]);
   return next;
 }
 
@@ -51,6 +55,13 @@ export function completionSummary(days = 14) {
     date,
     count: completions.filter((completion) => completion.date === date).length,
   }));
+}
+
+export async function hydrateWorkoutCompletionsFromCloud() {
+  if (typeof window === "undefined") return [];
+  const completions = await hydrateLocalWorkoutCompletionsFromCloud(listWorkoutCompletions());
+  window.localStorage.setItem(KEY, JSON.stringify(completions));
+  return completions;
 }
 
 export function todayKey() {

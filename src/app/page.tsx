@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, Camera, Dumbbell, FileText, FlaskConical, History, Ruler } from "lucide-react";
+import { Activity, Camera, CreditCard, Dumbbell, FileText, FlaskConical, History, Ruler, User } from "lucide-react";
 
 const links = [
   { href: "/scan", label: "Start posture scan", icon: Camera },
@@ -7,6 +7,7 @@ const links = [
   { href: "/report", label: "Report", icon: FileText },
   { href: "/measurements", label: "Measurements", icon: Ruler },
   { href: "/history", label: "History", icon: History },
+  { href: "/pricing", label: "Pricing", icon: CreditCard },
   { href: "/lab", label: "Research mode", icon: FlaskConical },
 ];
 
@@ -22,6 +23,15 @@ export default function Home() {
           <Link className="text-sm font-medium text-[#476153]" href="/lab">
             Lab
           </Link>
+          <div className="flex items-center gap-4">
+            <Link className="text-sm font-medium text-[#476153]" href="/pricing">
+              Pricing
+            </Link>
+            <Link className="inline-flex items-center gap-2 text-sm font-medium text-[#476153]" href="/account">
+              <User className="h-4 w-4" />
+              Account
+            </Link>
+          </div>
         </nav>
         <div className="grid gap-8 py-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
           <div className="space-y-6">
@@ -64,6 +74,10 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <footer className="flex flex-wrap gap-4 border-t border-[#d8ded7] pt-4 text-sm text-[#5e6f64]">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+        </footer>
       </section>
     </main>
   );

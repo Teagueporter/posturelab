@@ -2,6 +2,7 @@
 
 import { analyzeScan } from "@/lib/measurements/analyze";
 import type { ScanAnalysis } from "@/lib/measurements/types";
+import { deleteScanFromCloud, hydrateLocalScansFromCloud, syncScanToCloud } from "@/lib/storage/cloud";
 
 const KEY = "posturelab.scans.v1";
 
@@ -19,10 +20,26 @@ export function listScans(): ScanAnalysis[] {
 export function saveScan(scan: ScanAnalysis) {
   const scans = [scan, ...listScans().filter((item) => item.id !== scan.id)];
   window.localStorage.setItem(KEY, JSON.stringify(scans));
+  void syncScanToCloud(scan);
 }
 
 export function getScan(scanId: string) {
   return listScans().find((scan) => scan.id === scanId);
+}
+
+export function deleteScan(scanId: string) {
+  if (typeof window === "undefined") return [];
+  const scans = listScans().filter((scan) => scan.id !== scanId);
+  window.localStorage.setItem(KEY, JSON.stringify(scans));
+  void deleteScanFromCloud(scanId);
+  return scans;
+}
+
+export async function hydrateScansFromCloud() {
+  if (typeof window === "undefined") return [];
+  const scans = await hydrateLocalScansFromCloud(listScans());
+  window.localStorage.setItem(KEY, JSON.stringify(scans));
+  return scans;
 }
 
 function normalizeScan(scan: ScanAnalysis): ScanAnalysis {

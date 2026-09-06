@@ -8,16 +8,30 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "secrets:check": "node scripts/check-secrets.mjs",
+    "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
+    "smoke:prod": "node scripts/smoke-production.mjs",
+    "verify": "npm run secrets:check && npm run supabase:schema-check && npm test && npm run lint && npm run build",
+    "setup:check": "node scripts/setup-check.mjs",
+    "supabase:start": "supabase start",
+    "supabase:status": "supabase status -o env --override-name api.url=NEXT_PUBLIC_SUPABASE_URL --override-name auth.anon_key=NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY --override-name auth.service_role_key=SUPABASE_SERVICE_ROLE_KEY",
+    "supabase:reset": "supabase db reset --local",
+    "supabase:lint": "supabase db lint --local --fail-on warning"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
+    "@supabase/ssr": "^0.12.6",
+    "@supabase/supabase-js": "^2.115.0",
+    "@vercel/analytics": "^1.3.1",
+    "@vercel/speed-insights": "^0.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.541.0",
     "next": "16.3.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "stripe": "^22.6.1",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
@@ -27,6 +41,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "supabase": "^2.116.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"

@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Camera, Dumbbell } from "lucide-react";
+import { Camera, Dumbbell, Trash2 } from "lucide-react";
 import { measurementTrends } from "@/lib/interpretation/progress";
 import type { ScanAnalysis } from "@/lib/measurements/types";
-import { listScans } from "@/lib/storage/scans";
+import { deleteScan, hydrateScansFromCloud, listScans } from "@/lib/storage/scans";
 
 const summaryIds = ["front_shoulder_tilt", "leftSide_ear_over_shoulder_offset", "rightSide_ear_over_shoulder_offset", "front_trunk_lean"];
 
@@ -15,8 +15,17 @@ export function HistoryView() {
   const readyTrendCount = measurementTrends(scans).filter((trend) => trend.status !== "not-enough-data").length;
 
   useEffect(() => {
-    queueMicrotask(() => setScans(listScans()));
+    queueMicrotask(() => {
+      setScans(listScans());
+      void hydrateScansFromCloud().then(setScans);
+    });
   }, []);
+
+  function handleDelete(scanId: string) {
+    const confirmed = window.confirm("Delete this scan and its stored photos? This cannot be undone.");
+    if (!confirmed) return;
+    setScans(deleteScan(scanId));
+  }
 
   return (
     <main className="mx-auto min-h-dvh max-w-3xl px-5 py-6">
@@ -43,20 +52,32 @@ export function HistoryView() {
       <div className="mt-6 space-y-3">
         {scans.length === 0 && <p className="rounded-md border border-[#d8ded7] bg-white p-4 text-[#516156]">No saved scans yet.</p>}
         {scans.map((scan) => (
-          <Link key={scan.id} href={`/results/${scan.id}`} className="block rounded-md border border-[#d8ded7] bg-white p-4">
-            <h2 className="font-semibold">{new Date(scan.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</h2>
-            <dl className="mt-3 grid gap-2">
-              {summaryIds.map((id) => {
-                const measurement = scan.measurements.find((m) => m.id === id);
-                return measurement ? (
-                  <div key={id} className="flex justify-between text-sm">
-                    <dt className="text-[#516156]">{measurement.label}</dt>
-                    <dd className="font-semibold">{measurement.value}{measurement.unit}</dd>
-                  </div>
-                ) : null;
-              })}
-            </dl>
-          </Link>
+          <article key={scan.id} className="rounded-md border border-[#d8ded7] bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <Link href={`/results/${scan.id}`} className="min-w-0 flex-1">
+                <h2 className="font-semibold">{new Date(scan.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</h2>
+                <dl className="mt-3 grid gap-2">
+                  {summaryIds.map((id) => {
+                    const measurement = scan.measurements.find((m) => m.id === id);
+                    return measurement ? (
+                      <div key={id} className="flex justify-between gap-4 text-sm">
+                        <dt className="text-[#516156]">{measurement.label}</dt>
+                        <dd className="font-semibold">{measurement.value}{measurement.unit}</dd>
+                      </div>
+                    ) : null;
+                  })}
+                </dl>
+              </Link>
+              <button
+                onClick={() => handleDelete(scan.id)}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-[#e8b2a4] text-[#9d3b2b] transition-colors hover:bg-[#fff8f5]"
+                aria-label="Delete scan"
+                title="Delete scan"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </article>
         ))}
       </div>
     </main>

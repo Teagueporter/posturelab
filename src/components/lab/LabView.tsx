@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Download, FileText, FlaskConical } from "lucide-react";
 import type { ScanAnalysis } from "@/lib/measurements/types";
-import { listScans } from "@/lib/storage/scans";
+import { hydrateScansFromCloud, listScans } from "@/lib/storage/scans";
 import { repeatabilityStats } from "@/lib/validation/repeatability";
 
 export function LabView() {
@@ -12,7 +12,10 @@ export function LabView() {
   const stats = useMemo(() => repeatabilityStats(scans), [scans]);
 
   useEffect(() => {
-    queueMicrotask(() => setScans(listScans()));
+    queueMicrotask(() => {
+      setScans(listScans());
+      void hydrateScansFromCloud().then(setScans);
+    });
   }, []);
 
   function exportJson() {
@@ -45,7 +48,7 @@ export function LabView() {
         </section>
         <section className="rounded-md border border-[#d8ded7] bg-white p-4">
           <h2 className="font-semibold">Orientation validation</h2>
-          <p className="mt-2 text-sm text-[#516156]">TODO: automated side-photo rotation validation. For now, retake visibly rotated side photos instead of calculating from them silently.</p>
+          <p className="mt-2 text-sm text-[#516156]">Retake visibly rotated side photos before comparing measurements. Consistent side angles make head, shoulder, and trunk trends easier to trust.</p>
         </section>
       </div>
       <section className="mt-6 rounded-md border border-[#d8ded7] bg-white p-4">

@@ -87,7 +87,7 @@ export function buildWeeklyProgressReview(input: {
   today?: Date;
 }): WeeklyProgressReview {
   const today = input.today ?? new Date();
-  const weekStart = dateKey(daysAgo(today, 6));
+  const weekStart = weeklyReviewStartKey(today);
   const recentScans = input.scans.filter((scan) => scan.createdAt.slice(0, 10) >= weekStart);
   const recentCheckIns = input.checkIns.filter((checkIn) => checkIn.date >= weekStart);
   const recentCompletions = input.completions.filter((completion) => completion.date >= weekStart);
@@ -136,6 +136,10 @@ export function buildWeeklyProgressReview(input: {
       reviewable === 0 ? "Trend labels are still limited by data quality or scan count." : `${reviewable} target${reviewable === 1 ? "" : "s"} have enough data for review.`,
     ],
   };
+}
+
+export function weeklyReviewStartKey(today = new Date()) {
+  return dateKey(daysAgo(today, 6));
 }
 
 function value(scan: ScanAnalysis, id: string) {

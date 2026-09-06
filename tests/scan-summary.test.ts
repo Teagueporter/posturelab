@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildTrackingScore, buildWeeklyProgressReview } from "@/lib/interpretation/scan-summary";
+import { buildTrackingScore, buildWeeklyProgressReview, weeklyReviewStartKey } from "@/lib/interpretation/scan-summary";
 import type { ScanAnalysis } from "@/lib/measurements/types";
 
 describe("scan summary", () => {
@@ -21,6 +21,10 @@ describe("scan summary", () => {
     });
     expect(review.status).toBe("baseline");
     expect(review.bullets.join(" ")).toContain("1 more comparable scan");
+  });
+
+  it("uses the same seven-day window start for weekly review persistence", () => {
+    expect(weeklyReviewStartKey(new Date("2026-01-07T12:00:00.000Z"))).toBe("2026-01-01");
   });
 });
 
