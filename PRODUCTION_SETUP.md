@@ -67,6 +67,7 @@ Check configured values without printing secrets:
 
 ```bash
 npm run setup:check
+npm run launch:runbook
 npm run supabase:schema-check
 npm run supabase:live-check
 npm run stripe:live-check

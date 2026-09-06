@@ -2,6 +2,8 @@
 
 This file mirrors the launch issues that still need to be created in GitHub. The GitHub connector can search the repo but returned `403 Resource not accessible by integration` when creating issues, so the tasks are tracked here until issue creation permissions are available.
 
+- [ ] Run `npm run launch:runbook` before starting live service setup.
+
 ## Supabase
 
 - [ ] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.

@@ -18,6 +18,7 @@
     "vercel:env-check": "node scripts/check-vercel-env.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
     "smoke:ready": "node scripts/smoke-production.mjs --require-live-services",
+    "launch:runbook": "node scripts/launch-runbook.mjs",
     "launch:status": "node scripts/launch-status.mjs",
     "launch:ready": "node scripts/launch-status.mjs --include-live-services --include-vercel-env --fail-on-not-ready",
     "vercel:env-plan": "node scripts/vercel-env-plan.mjs",
