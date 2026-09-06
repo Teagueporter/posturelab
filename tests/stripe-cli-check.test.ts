@@ -39,11 +39,33 @@ describe("Stripe CLI checker", () => {
     expect(output).toContain("use the Stripe Dashboard");
   });
 
+  it("reports unauthenticated Stripe CLI JSON without treating the CLI as missing", () => {
+    const result = checkStripeCli({
+      runStripe: () => {
+        const error = new Error("Command failed: stripe whoami --format json") as Error & { stdout: string };
+        error.stdout = JSON.stringify({
+          authenticated: false,
+          profile_name: "default",
+        });
+        throw error;
+      },
+    });
+
+    const output = formatStripeCliCheck(result);
+
+    expect(result.ok).toBe(false);
+    expect(result.installed).toBe(true);
+    expect(result.authenticated).toBe(false);
+    expect(output).toContain("Stripe CLI is installed but not authenticated for profile default");
+  });
+
   it("parses Stripe whoami JSON after CLI preface text", () => {
     expect(parseStripeWhoami('Loading...\n{"account_id":"acct_123","account_name":"PostureLab"}')).toEqual({
       accountId: "acct_123",
       accountName: "PostureLab",
       userEmail: undefined,
+      authenticated: undefined,
+      profileName: undefined,
     });
   });
 });

@@ -4,17 +4,12 @@ import { pathToFileURL } from "node:url";
 export function checkStripeCli({ runStripe = defaultRunStripe } = {}) {
   try {
     const output = runStripe(["whoami", "--format", "json"]);
-    const account = parseStripeWhoami(output);
-    const authenticated = Boolean(account.accountId || account.accountName || account.userEmail);
-
-    return {
-      ok: authenticated,
-      installed: true,
-      authenticated,
-      account,
-      detail: account.accountName ? `authenticated as ${account.accountName}` : "authenticated",
-    };
+    return stripeCliResultFromWhoami(output);
   } catch (error) {
+    if (error?.stdout) {
+      return stripeCliResultFromWhoami(String(error.stdout));
+    }
+
     const code = error?.code;
     const message = error instanceof Error ? error.message : String(error);
     const missing = code === "ENOENT" || message.includes("ENOENT");
@@ -51,6 +46,26 @@ export function parseStripeWhoami(output) {
     accountId: parsed.account_id ?? parsed.accountId,
     accountName: parsed.account_name ?? parsed.accountName,
     userEmail: parsed.user_email ?? parsed.userEmail,
+    authenticated: parsed.authenticated,
+    profileName: parsed.profile_name ?? parsed.profileName,
+  };
+}
+
+function stripeCliResultFromWhoami(output) {
+  const account = parseStripeWhoami(output);
+  const authenticated =
+    account.authenticated === true || Boolean(account.accountId || account.accountName || account.userEmail);
+
+  return {
+    ok: authenticated,
+    installed: true,
+    authenticated,
+    account,
+    detail: authenticated
+      ? account.accountName
+        ? `authenticated as ${account.accountName}`
+        : "authenticated"
+      : `Stripe CLI is installed but not authenticated${account.profileName ? ` for profile ${account.profileName}` : ""}`,
   };
 }
 
