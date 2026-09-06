@@ -68,6 +68,7 @@ Check configured values without printing secrets:
 ```bash
 npm run setup:check
 npm run supabase:schema-check
+npm run supabase:live-check
 npm run vercel:env-plan
 ```
 
@@ -99,16 +100,17 @@ Supabase connector state:
 
 1. Create a new Supabase project for this app after confirming the organization and cost.
 2. Run the migration in `supabase/migrations/20260906052834_initial_production_schema.sql`.
-3. Confirm RLS is enabled on all public tables.
-4. Confirm the `scan-images` bucket is private.
-5. In Supabase Auth, add these redirect URLs:
+3. Run `npm run supabase:live-check` after adding the Supabase env vars locally. It verifies the expected tables are reachable by the service role and confirms the `scan-images` bucket exists and is private without printing keys.
+4. Confirm RLS is enabled on all public tables.
+5. Confirm the `scan-images` bucket is private.
+6. In Supabase Auth, add these redirect URLs:
 
 ```text
 http://localhost:3000/auth/callback
 https://posturelab-six.vercel.app/auth/callback
 ```
 
-6. Copy the project URL, publishable key, and service role key into environment variables.
+7. Copy the project URL, publishable key, and service role key into environment variables.
 
 The service role key is only used on the server for billing webhook/customer synchronization. It must never be exposed to the browser.
 

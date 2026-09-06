@@ -6,6 +6,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [ ] Create Supabase project `posturelab` in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
 - [ ] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
+- [ ] Run `npm run supabase:live-check` after local Supabase env vars are installed.
 - [ ] Confirm RLS, private `scan-images` storage, and folder-scoped storage policies.
 - [ ] Add `http://localhost:3000/auth/callback` and `https://posturelab-six.vercel.app/auth/callback` as Supabase Auth redirect URLs.
 - [ ] Capture project URL, publishable key, and service role key for Vercel.
