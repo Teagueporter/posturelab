@@ -6,7 +6,7 @@ Current Vercel production checkpoint:
 
 - Project: `teagueporters-projects/posturelab`
 - Production URL: `https://posturelab-six.vercel.app`
-- Deployment ID: `dpl_CWBYQchgfVfEmhCB4fdHDma42x5A`
+- Deployment ID: run `npm run vercel:deployment-check` for the current Ready deployment behind the production alias
 - Status: deployed and responding; `NEXT_PUBLIC_APP_URL` is configured in Vercel; `/api/health` currently reports Supabase and Stripe as `missing-env`
 - Latest smoke check: `npm run smoke:prod` passed against the production alias with disabled checkout and unsigned webhook rejection verified
 
