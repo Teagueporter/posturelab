@@ -12,6 +12,7 @@
     "secrets:check": "node scripts/check-secrets.mjs",
     "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
+    "smoke:ready": "node scripts/smoke-production.mjs --require-live-services",
     "launch:status": "node scripts/launch-status.mjs",
     "vercel:env-plan": "node scripts/vercel-env-plan.mjs",
     "verify": "npm run secrets:check && npm run supabase:schema-check && npm test && npm run lint && npm run build",

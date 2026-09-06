@@ -79,6 +79,14 @@ npm run smoke:prod
 
 This checks the deployed health endpoint, pricing checkout state, and unsigned Stripe webhook rejection without printing secrets.
 
+After Supabase and Stripe env vars are configured in Vercel, run the stricter launch gate:
+
+```bash
+npm run smoke:ready
+```
+
+This requires `/api/health` to report both Supabase and Stripe as configured and requires the pricing page to show live checkout controls.
+
 ## Supabase
 
 Supabase connector state:

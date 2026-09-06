@@ -5,6 +5,7 @@ export const defaultProductionUrl = "https://posturelab-six.vercel.app";
 export async function runProductionSmokeChecks({
   baseUrl = process.env.NEXT_PUBLIC_APP_URL || defaultProductionUrl,
   fetchImpl = globalThis.fetch,
+  requireLiveServices = false,
 } = {}) {
   if (typeof fetchImpl !== "function") {
     throw new Error("A fetch implementation is required.");
@@ -23,11 +24,22 @@ export async function runProductionSmokeChecks({
     detail: health ? `supabase=${health.services?.supabase ?? "unknown"} stripe=${health.services?.stripe ?? "unknown"}` : "invalid json",
   });
 
+  const servicesConfigured = health?.services?.supabase === "configured" && health?.services?.stripe === "configured";
+  if (requireLiveServices) {
+    results.push({
+      name: "live service configuration",
+      ok: servicesConfigured,
+      detail: servicesConfigured ? "supabase and stripe configured" : "supabase and stripe must both be configured",
+    });
+  }
+
   const pricingResponse = await fetchImpl(`${appUrl}/pricing`, {
     headers: { accept: "text/html" },
   });
   const pricingHtml = await pricingResponse.text();
-  const billingMissing = health?.services?.supabase === "missing-env" || health?.services?.stripe === "missing-env";
+  const billingMissing = requireLiveServices
+    ? false
+    : health?.services?.supabase === "missing-env" || health?.services?.stripe === "missing-env";
   results.push({
     name: "pricing checkout state",
     ok: pricingResponse.ok && pricingPageMatchesBillingState(pricingHtml, billingMissing),
@@ -82,7 +94,9 @@ async function readJson(response) {
 }
 
 async function main() {
-  const result = await runProductionSmokeChecks();
+  const result = await runProductionSmokeChecks({
+    requireLiveServices: process.argv.includes("--require-live-services"),
+  });
   const output = formatSmokeResult(result);
 
   if (result.ok) {

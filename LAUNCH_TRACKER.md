@@ -25,6 +25,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 - [ ] Redeploy production.
 - [ ] Run `npm run verify`.
 - [ ] Run `npm run smoke:prod`.
+- [ ] Run `npm run smoke:ready` after Vercel env vars are deployed.
 - [ ] Confirm `/api/health` reports Supabase and Stripe as `configured`.
 - [ ] Test login, checkout, customer portal, webhook sync, account export/delete, and cloud scan sync end to end.
 - [ ] Decide whether to enable Vercel Web Analytics and Speed Insights in project settings.
