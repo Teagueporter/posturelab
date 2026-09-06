@@ -75,7 +75,17 @@ describe("launch status command", () => {
           },
         ],
       },
-      vercelDeploymentCheck: { ok: true, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_ready", status: "Ready", url: "https://deployment.vercel.app", aliases: ["https://posturelab-six.vercel.app"] },
+      vercelDeploymentCheck: {
+        ok: true,
+        expectedUrl: "https://posturelab-six.vercel.app",
+        expectedGitSha: "current-sha",
+        gitShaMatches: true,
+        githubCommitSha: "current-sha",
+        id: "dpl_ready",
+        status: "Ready",
+        url: "https://deployment.vercel.app",
+        aliases: ["https://posturelab-six.vercel.app"],
+      },
     });
 
     const output = formatLaunchStatus(status);
@@ -146,7 +156,17 @@ describe("launch status command", () => {
           },
         ],
       },
-      vercelDeploymentCheck: { ok: false, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_pending", status: "Building", url: "https://deployment.vercel.app", aliases: [] },
+      vercelDeploymentCheck: {
+        ok: false,
+        expectedUrl: "https://posturelab-six.vercel.app",
+        expectedGitSha: "current-sha",
+        gitShaMatches: false,
+        githubCommitSha: "old-sha",
+        id: "dpl_pending",
+        status: "Building",
+        url: "https://deployment.vercel.app",
+        aliases: [],
+      },
     });
 
     const output = formatLaunchStatus(status);
@@ -160,6 +180,7 @@ describe("launch status command", () => {
     expect(output).toContain("missing STRIPE_RESTRICTED_KEY");
     expect(output).toContain("Vercel deployment failures:");
     expect(output).toContain("status Building");
+    expect(output).toContain("deployed commit old-sha does not match current-sha");
   });
 
   it("keeps normal status informational but makes readiness gate fail when not ready", async () => {

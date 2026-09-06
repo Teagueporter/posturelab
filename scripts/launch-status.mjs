@@ -130,6 +130,9 @@ export function formatLaunchStatus(status) {
     lines.push("Vercel deployment failures:");
     lines.push(`  - expected alias ${status.vercelDeployment.expectedUrl}`);
     lines.push(`  - status ${status.vercelDeployment.status}`);
+    if (status.vercelDeployment.gitShaMatches === false) {
+      lines.push(`  - deployed commit ${status.vercelDeployment.githubCommitSha || "unknown"} does not match ${status.vercelDeployment.expectedGitSha}`);
+    }
   }
 
   return lines.join("\n");
