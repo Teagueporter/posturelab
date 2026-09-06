@@ -16,6 +16,8 @@ describe("Vercel env presence checker", () => {
             {
               key: "NEXT_PUBLIC_APP_URL",
               value: "encrypted-secret-blob",
+              type: "encrypted",
+              visibility: "config",
               target: ["production", "preview", "development"],
             },
           ],
@@ -40,6 +42,8 @@ describe("Vercel env presence checker", () => {
             {
               key: "NEXT_PUBLIC_APP_URL",
               value: "encrypted-secret-blob",
+              type: "encrypted",
+              visibility: "config",
               target: ["production"],
             },
           ],
@@ -49,5 +53,38 @@ describe("Vercel env presence checker", () => {
     expect(result.ok).toBe(false);
     expect(result.checks[0]?.missingTargets).toEqual(["preview"]);
     expect(formatVercelEnvPresence(result)).toContain("missing preview");
+  });
+
+  it("requires server secrets to be stored as Vercel sensitive variables", () => {
+    const result = checkVercelEnvPresence({
+      required: ["SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_APP_URL"],
+      runVercel: () =>
+        JSON.stringify({
+          envs: [
+            {
+              key: "SUPABASE_SERVICE_ROLE_KEY",
+              value: "encrypted-secret-blob",
+              type: "encrypted",
+              visibility: "config",
+              target: ["production", "preview"],
+            },
+            {
+              key: "NEXT_PUBLIC_APP_URL",
+              value: "encrypted-public-blob",
+              type: "encrypted",
+              visibility: "config",
+              target: ["production", "preview"],
+            },
+          ],
+        }),
+    });
+
+    const output = formatVercelEnvPresence(result);
+
+    expect(result.ok).toBe(false);
+    expect(result.checks.find((check) => check.name === "SUPABASE_SERVICE_ROLE_KEY")?.sensitivityOk).toBe(false);
+    expect(result.checks.find((check) => check.name === "NEXT_PUBLIC_APP_URL")?.sensitivityOk).toBe(true);
+    expect(output).toContain("SUPABASE_SERVICE_ROLE_KEY: must be stored as a Vercel sensitive variable");
+    expect(output).not.toContain("encrypted-secret-blob");
   });
 });

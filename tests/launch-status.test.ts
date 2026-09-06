@@ -61,7 +61,20 @@ describe("launch status command", () => {
       includeVercelEnv: true,
       liveSupabaseCheck: Promise.resolve({ ok: true, missing: [], invalid: [], tableChecks: [], storage: { ok: true, detail: "private" } }),
       liveStripeCheck: Promise.resolve({ ok: true, missing: [], invalid: [], priceChecks: [] }),
-      vercelEnvCheck: { ok: true, checks: [{ name: "NEXT_PUBLIC_APP_URL", present: true, configuredTargets: ["production", "preview"], missingTargets: [], ok: true }] },
+      vercelEnvCheck: {
+        ok: true,
+        checks: [
+          {
+            name: "NEXT_PUBLIC_APP_URL",
+            present: true,
+            expectedSensitive: false,
+            sensitivityOk: true,
+            configuredTargets: ["production", "preview"],
+            missingTargets: [],
+            ok: true,
+          },
+        ],
+      },
       vercelDeploymentCheck: { ok: true, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_ready", status: "Ready", url: "https://deployment.vercel.app", aliases: ["https://posturelab-six.vercel.app"] },
     });
 
@@ -94,7 +107,17 @@ describe("launch status command", () => {
       }),
       vercelEnvCheck: {
         ok: false,
-        checks: [{ name: "STRIPE_RESTRICTED_KEY", present: false, configuredTargets: [], missingTargets: ["production", "preview"], ok: false }],
+        checks: [
+          {
+            name: "STRIPE_RESTRICTED_KEY",
+            present: false,
+            expectedSensitive: true,
+            sensitivityOk: false,
+            configuredTargets: [],
+            missingTargets: ["production", "preview"],
+            ok: false,
+          },
+        ],
       },
       vercelDeploymentCheck: { ok: false, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_pending", status: "Building", url: "https://deployment.vercel.app", aliases: [] },
     });

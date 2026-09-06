@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { requiredEnvNames } from "./setup-check.mjs";
-import { vercelEnvTargets } from "./vercel-env-plan.mjs";
+import { sensitiveEnvNames, vercelEnvTargets } from "./vercel-env-plan.mjs";
 
 export function checkVercelEnvPresence({
   runVercel = defaultRunVercel,
@@ -16,13 +16,17 @@ export function checkVercelEnvPresence({
     const entry = byKey.get(name);
     const configuredTargets = Array.isArray(entry?.target) ? entry.target : [];
     const missingTargets = targets.filter((target) => !configuredTargets.includes(target));
+    const expectedSensitive = sensitiveEnvNames.has(name);
+    const sensitivityOk = !expectedSensitive || entry?.type === "sensitive" || entry?.visibility === "secret";
 
     return {
       name,
       present: Boolean(entry),
+      expectedSensitive,
+      sensitivityOk,
       configuredTargets,
       missingTargets,
-      ok: Boolean(entry) && missingTargets.length === 0,
+      ok: Boolean(entry) && missingTargets.length === 0 && sensitivityOk,
     };
   });
 
@@ -43,6 +47,8 @@ export function formatVercelEnvPresence(result) {
       lines.push(`- PASS ${check.name}: configured for ${check.configuredTargets.join(", ")}`);
     } else if (!check.present) {
       lines.push(`- FAIL ${check.name}: missing from Vercel`);
+    } else if (!check.sensitivityOk) {
+      lines.push(`- FAIL ${check.name}: must be stored as a Vercel sensitive variable`);
     } else {
       lines.push(`- FAIL ${check.name}: missing ${check.missingTargets.join(", ")}`);
     }
