@@ -5,8 +5,18 @@ import { logRouteDone, logRouteError, logRouteStart, routeLogContext } from "@/l
 
 export const runtime = "nodejs";
 
-type SupabaseServerClient = NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>;
 type ScanRow = Database["public"]["Tables"]["scans"]["Row"];
+
+export type ScanPhotoSigner = {
+  storage: {
+    from(bucket: "scan-images"): {
+      createSignedUrl(path: string, expiresIn: number): Promise<{
+        data: { signedUrl: string } | null;
+        error: { message: string } | null;
+      }>;
+    };
+  };
+};
 
 export function accountExportHeaders(date = new Date()) {
   return {
@@ -102,7 +112,7 @@ export function scanImagePathsFromRows(scans: Pick<ScanRow, "view_image_paths">[
   return Array.from(paths).sort();
 }
 
-async function createScanPhotoUrls(supabase: SupabaseServerClient, scans: Pick<ScanRow, "view_image_paths">[]) {
+export async function createScanPhotoUrls(supabase: ScanPhotoSigner, scans: Pick<ScanRow, "view_image_paths">[]) {
   const paths = scanImagePathsFromRows(scans);
   const signedUrls = await Promise.all(
     paths.map(async (path) => {
