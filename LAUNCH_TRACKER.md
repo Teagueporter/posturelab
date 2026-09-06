@@ -15,13 +15,15 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [x] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.
 - [x] Re-verified with the Supabase connector on 2026-09-06 12:03 MDT: organization `teagueporter's projects` (`vercel_icfg_qqsgYASShKraJS8qi3PBxC9e`) and project cost `$0/month`.
-- [ ] Create Supabase project `posturelab` in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
-- [ ] Run `npm run supabase:migration-plan` before applying SQL to the live project.
-- [ ] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
+- [x] Created Supabase project `posturelab` (`smvpegauglgjlnxytzkl`) in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
+- [x] Run `npm run supabase:migration-plan` before applying SQL to the live project.
+- [x] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
 - [ ] Run `npm run supabase:live-check` after local Supabase env vars are installed.
-- [ ] Confirm RLS, private `scan-images` storage, and folder-scoped storage policies.
+- [x] Confirm RLS, private `scan-images` storage, and folder-scoped storage policies.
+- [x] Run Supabase security/performance advisors after migration. Current findings are INFO-only: webhook events intentionally has no user policies, and fresh indexes are unused because the project has no data yet.
 - [ ] Add `http://localhost:3000/auth/callback` and `https://posturelab-six.vercel.app/auth/callback` as Supabase Auth redirect URLs.
-- [ ] Capture project URL, publishable key, and service role key for Vercel.
+- [ ] Capture service role key for local and Vercel server env.
+- [x] Capture project URL and modern publishable key for local env.
 
 ## Stripe
 
