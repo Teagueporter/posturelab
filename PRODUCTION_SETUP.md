@@ -6,7 +6,7 @@ Current Vercel production checkpoint:
 
 - Project: `teagueporters-projects/posturelab`
 - Production URL: `https://posturelab-six.vercel.app`
-- Deployment ID: `dpl_sL8AiasUJeTVweNm95r4cMHP7FeK`
+- Deployment ID: `dpl_By4AsP5Vfe5VL1PJtqqtWjPvxTtk`
 - Status: deployed and responding; `NEXT_PUBLIC_APP_URL` is configured in Vercel; `/api/health` currently reports Supabase and Stripe as `missing-env`
 - Latest smoke check: `npm run smoke:prod` passed against the production alias with disabled checkout and unsigned webhook rejection verified
 
@@ -262,4 +262,4 @@ Before charging users, confirm:
 - Confirm the final privacy policy names Vercel analytics/performance telemetry and excludes posture photos, pose landmarks, scan measurements, reports, payment credentials, and deletion confirmations from analytics inputs
 - Domain/name decision, since there is already an App Store product named `PostureLab AI`
 
-Authenticated account exports include database records plus short-lived signed URLs for scan photos. Deleting a cloud account removes scan image objects before deleting the Supabase Auth user, and the action fails closed if subscription lookup, storage cleanup, or Auth deletion returns a Supabase error.
+Authenticated account exports include database records plus short-lived signed URLs for scan photos, and the export fails closed if any stored scan photo URL cannot be signed. Deleting a cloud account removes scan image objects before deleting the Supabase Auth user, and the action fails closed if subscription lookup, storage cleanup, or Auth deletion returns a Supabase error.

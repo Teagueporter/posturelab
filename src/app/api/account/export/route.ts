@@ -106,10 +106,13 @@ async function createScanPhotoUrls(supabase: SupabaseServerClient, scans: Pick<S
   const paths = scanImagePathsFromRows(scans);
   const signedUrls = await Promise.all(
     paths.map(async (path) => {
-      const { data } = await supabase.storage.from("scan-images").createSignedUrl(path, 60 * 60);
-      return data?.signedUrl ? [path, data.signedUrl] : null;
+      const { data, error } = await supabase.storage.from("scan-images").createSignedUrl(path, 60 * 60);
+      if (error || !data?.signedUrl) {
+        throw new Error("Unable to create signed scan photo export URL");
+      }
+      return [path, data.signedUrl];
     }),
   );
 
-  return Object.fromEntries(signedUrls.filter((entry): entry is [string, string] => Boolean(entry)));
+  return Object.fromEntries(signedUrls);
 }

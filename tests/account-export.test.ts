@@ -28,6 +28,12 @@ describe("account export route", () => {
     expect(routeSource).toContain("scanPhotoUrls");
   });
 
+  it("fails the export when signed scan photo URLs cannot be created", () => {
+    expect(routeSource).toContain("error || !data?.signedUrl");
+    expect(routeSource).toContain('throw new Error("Unable to create signed scan photo export URL")');
+    expect(routeSource).not.toContain("signedUrls.filter");
+  });
+
   it("collects unique scan image paths without trusting malformed row data", () => {
     expect(
       scanImagePathsFromRows([
