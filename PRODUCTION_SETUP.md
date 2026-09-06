@@ -98,7 +98,7 @@ npm run smoke:ready
 npm run launch:ready
 ```
 
-This requires `/api/health` to report both Supabase and Stripe as configured, requires the pricing page to show live checkout controls, checks the live Supabase and Stripe setup from local env, confirms Vercel has the required env var names across production and preview, and exits nonzero until every readiness check passes.
+This requires `/api/health` to report both Supabase and Stripe as configured, requires the pricing page to show live checkout controls, checks the live Supabase and Stripe setup from local env, checks Stripe CLI installation/version/authentication, confirms Vercel has the required env var names across production and preview, and exits nonzero until every readiness check passes.
 
 ## Supabase
 

@@ -85,6 +85,33 @@ describe("launch status command", () => {
     expect(output).toContain("Vercel deployment: pass");
   });
 
+  it("can include Stripe CLI readiness in the final setup gate", async () => {
+    const status = await buildLaunchStatus({
+      env: validEnv(),
+      fetchImpl: fakeLiveSmokeFetch as typeof fetch,
+      runGit: fakeGit,
+      includeLiveServices: true,
+      includeStripeCli: true,
+      liveSupabaseCheck: Promise.resolve({ ok: true, missing: [], invalid: [], tableChecks: [], storage: { ok: true, detail: "private" } }),
+      liveStripeCheck: Promise.resolve({ ok: true, missing: [], invalid: [], priceChecks: [] }),
+      stripeCliCheck: {
+        ok: false,
+        installed: true,
+        authenticated: false,
+        version: "1.50.10",
+        versionOk: true,
+        account: {},
+        detail: "Stripe CLI is installed but not authenticated for profile default",
+      },
+    });
+
+    const output = formatLaunchStatus(status);
+
+    expect(status.ok).toBe(false);
+    expect(output).toContain("Stripe CLI: fail");
+    expect(output).toContain("Stripe CLI is not authenticated");
+  });
+
   it("surfaces live service and Vercel failures when requested", async () => {
     const status = await buildLaunchStatus({
       env: validEnv(),

@@ -4,6 +4,7 @@ import { envWithLocalFile, invalidEnvMessages, missingEnvNames } from "./setup-c
 import { checkSupabaseSchema } from "./check-supabase-schema.mjs";
 import { checkLiveSupabase } from "./check-live-supabase.mjs";
 import { checkLiveStripe } from "./check-live-stripe.mjs";
+import { checkStripeCli } from "./check-stripe-cli.mjs";
 import { checkVercelDeployment } from "./check-vercel-deployment.mjs";
 import { checkVercelEnvPresence } from "./check-vercel-env.mjs";
 import { runProductionSmokeChecks } from "./smoke-production.mjs";
@@ -14,8 +15,10 @@ export async function buildLaunchStatus({
   runGit = defaultRunGit,
   includeLiveServices = false,
   includeVercelEnv = false,
+  includeStripeCli = false,
   liveSupabaseCheck = includeLiveServices ? checkLiveSupabase({ env }) : null,
   liveStripeCheck = includeLiveServices ? checkLiveStripe({ env }) : null,
+  stripeCliCheck = includeStripeCli ? checkStripeCli() : null,
   vercelEnvCheck = includeVercelEnv ? checkVercelEnvPresence() : null,
   vercelDeploymentCheck = includeVercelEnv ? checkVercelDeployment() : null,
 } = {}) {
@@ -26,6 +29,7 @@ export async function buildLaunchStatus({
   const git = gitStatus(runGit);
   const liveSupabase = liveSupabaseCheck ? await liveSupabaseCheck : null;
   const liveStripe = liveStripeCheck ? await liveStripeCheck : null;
+  const stripeCli = stripeCliCheck ? await stripeCliCheck : null;
   const vercelEnv = vercelEnvCheck ? await vercelEnvCheck : null;
   const vercelDeployment = vercelDeploymentCheck ? await vercelDeploymentCheck : null;
 
@@ -37,6 +41,7 @@ export async function buildLaunchStatus({
       productionSmoke.ok &&
       git.clean &&
       (!includeLiveServices || (liveSupabase?.ok === true && liveStripe?.ok === true)) &&
+      (!includeStripeCli || stripeCli?.ok === true) &&
       (!includeVercelEnv || (vercelEnv?.ok === true && vercelDeployment?.ok === true)),
     git,
     localEnvironment: {
@@ -51,6 +56,7 @@ export async function buildLaunchStatus({
     productionSmoke,
     liveSupabase,
     liveStripe,
+    stripeCli,
     vercelEnv,
     vercelDeployment,
   };
@@ -70,6 +76,9 @@ export function formatLaunchStatus(status) {
   }
   if (status.liveStripe) {
     lines.push(`- Live Stripe: ${status.liveStripe.ok ? "pass" : "fail"}`);
+  }
+  if (status.stripeCli) {
+    lines.push(`- Stripe CLI: ${status.stripeCli.ok ? "pass" : "fail"} (${status.stripeCli.detail})`);
   }
   if (status.vercelEnv) {
     lines.push(`- Vercel env: ${status.vercelEnv.ok ? "pass" : "fail"}`);
@@ -95,6 +104,16 @@ export function formatLaunchStatus(status) {
   }
   if (status.liveStripe && !status.liveStripe.ok) {
     lines.push(...formatNestedLiveFailures("Live Stripe failures:", status.liveStripe));
+  }
+  if (status.stripeCli && !status.stripeCli.ok) {
+    lines.push("Stripe CLI failures:");
+    if (!status.stripeCli.installed) {
+      lines.push("  - Stripe CLI is not installed");
+    } else if (status.stripeCli.versionOk === false) {
+      lines.push(`  - Stripe CLI version ${status.stripeCli.version ?? "unknown"} is below the required minimum`);
+    } else if (!status.stripeCli.authenticated) {
+      lines.push("  - Stripe CLI is not authenticated");
+    }
   }
   if (status.vercelEnv && !status.vercelEnv.ok) {
     lines.push("Vercel env failures:");
@@ -178,6 +197,7 @@ async function main() {
   const status = await buildLaunchStatus({
     includeLiveServices: process.argv.includes("--include-live-services"),
     includeVercelEnv: process.argv.includes("--include-vercel-env"),
+    includeStripeCli: process.argv.includes("--include-stripe-cli"),
   });
   console.log(formatLaunchStatus(status));
   process.exitCode = launchStatusExitCode(status, {
