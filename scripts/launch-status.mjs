@@ -4,6 +4,7 @@ import { envWithLocalFile, invalidEnvMessages, missingEnvNames } from "./setup-c
 import { checkSupabaseSchema } from "./check-supabase-schema.mjs";
 import { checkLiveSupabase } from "./check-live-supabase.mjs";
 import { checkLiveStripe } from "./check-live-stripe.mjs";
+import { checkVercelEnvPresence } from "./check-vercel-env.mjs";
 import { runProductionSmokeChecks } from "./smoke-production.mjs";
 
 export async function buildLaunchStatus({
@@ -11,8 +12,10 @@ export async function buildLaunchStatus({
   fetchImpl = globalThis.fetch,
   runGit = defaultRunGit,
   includeLiveServices = false,
+  includeVercelEnv = false,
   liveSupabaseCheck = includeLiveServices ? checkLiveSupabase({ env }) : null,
   liveStripeCheck = includeLiveServices ? checkLiveStripe({ env }) : null,
+  vercelEnvCheck = includeVercelEnv ? checkVercelEnvPresence() : null,
 } = {}) {
   const missingEnv = missingEnvNames(env);
   const invalidEnv = invalidEnvMessages(env);
@@ -21,6 +24,7 @@ export async function buildLaunchStatus({
   const git = gitStatus(runGit);
   const liveSupabase = liveSupabaseCheck ? await liveSupabaseCheck : null;
   const liveStripe = liveStripeCheck ? await liveStripeCheck : null;
+  const vercelEnv = vercelEnvCheck ? await vercelEnvCheck : null;
 
   return {
     ok:
@@ -29,7 +33,8 @@ export async function buildLaunchStatus({
       schemaFailures.length === 0 &&
       productionSmoke.ok &&
       git.clean &&
-      (!includeLiveServices || (liveSupabase?.ok === true && liveStripe?.ok === true)),
+      (!includeLiveServices || (liveSupabase?.ok === true && liveStripe?.ok === true)) &&
+      (!includeVercelEnv || vercelEnv?.ok === true),
     git,
     localEnvironment: {
       configured: missingEnv.length === 0 && invalidEnv.length === 0,
@@ -43,6 +48,7 @@ export async function buildLaunchStatus({
     productionSmoke,
     liveSupabase,
     liveStripe,
+    vercelEnv,
   };
 }
 
@@ -60,6 +66,9 @@ export function formatLaunchStatus(status) {
   }
   if (status.liveStripe) {
     lines.push(`- Live Stripe: ${status.liveStripe.ok ? "pass" : "fail"}`);
+  }
+  if (status.vercelEnv) {
+    lines.push(`- Vercel env: ${status.vercelEnv.ok ? "pass" : "fail"}`);
   }
 
   if (status.localEnvironment.missing.length > 0) {
@@ -79,6 +88,17 @@ export function formatLaunchStatus(status) {
   }
   if (status.liveStripe && !status.liveStripe.ok) {
     lines.push(...formatNestedLiveFailures("Live Stripe failures:", status.liveStripe));
+  }
+  if (status.vercelEnv && !status.vercelEnv.ok) {
+    lines.push("Vercel env failures:");
+    lines.push(
+      ...status.vercelEnv.checks
+        .filter((check) => !check.ok)
+        .map((check) => {
+          if (!check.present) return `  - missing ${check.name}`;
+          return `  - ${check.name}: missing ${check.missingTargets.join(", ")}`;
+        }),
+    );
   }
 
   return lines.join("\n");
@@ -145,6 +165,7 @@ function defaultRunGit(args) {
 async function main() {
   const status = await buildLaunchStatus({
     includeLiveServices: process.argv.includes("--include-live-services"),
+    includeVercelEnv: process.argv.includes("--include-vercel-env"),
   });
   console.log(formatLaunchStatus(status));
   process.exitCode = launchStatusExitCode(status, {

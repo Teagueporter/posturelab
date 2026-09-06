@@ -52,12 +52,31 @@ describe("launch status command", () => {
     expect(output).not.toContain("sb_secret_example");
   });
 
+  it("can include Vercel env presence in the final readiness gate", async () => {
+    const status = await buildLaunchStatus({
+      env: validEnv(),
+      fetchImpl: fakeLiveSmokeFetch as typeof fetch,
+      runGit: fakeGit,
+      includeLiveServices: true,
+      includeVercelEnv: true,
+      liveSupabaseCheck: Promise.resolve({ ok: true, missing: [], invalid: [], tableChecks: [], storage: { ok: true, detail: "private" } }),
+      liveStripeCheck: Promise.resolve({ ok: true, missing: [], invalid: [], priceChecks: [] }),
+      vercelEnvCheck: { ok: true, checks: [{ name: "NEXT_PUBLIC_APP_URL", present: true, configuredTargets: ["production", "preview", "development"], missingTargets: [], ok: true }] },
+    });
+
+    const output = formatLaunchStatus(status);
+
+    expect(status.ok).toBe(true);
+    expect(output).toContain("Vercel env: pass");
+  });
+
   it("surfaces live service failures when requested", async () => {
     const status = await buildLaunchStatus({
       env: validEnv(),
       fetchImpl: fakeLiveSmokeFetch as typeof fetch,
       runGit: fakeGit,
       includeLiveServices: true,
+      includeVercelEnv: true,
       liveSupabaseCheck: Promise.resolve({
         ok: false,
         missing: [],
@@ -71,6 +90,10 @@ describe("launch status command", () => {
         invalid: [],
         priceChecks: [{ name: "monthly", ok: false, detail: "expected month interval" }],
       }),
+      vercelEnvCheck: {
+        ok: false,
+        checks: [{ name: "STRIPE_RESTRICTED_KEY", present: false, configuredTargets: [], missingTargets: ["production", "preview", "development"], ok: false }],
+      },
     });
 
     const output = formatLaunchStatus(status);
@@ -80,6 +103,8 @@ describe("launch status command", () => {
     expect(output).toContain("scans: permission denied");
     expect(output).toContain("storage: scan-images bucket is missing");
     expect(output).toContain("monthly: expected month interval");
+    expect(output).toContain("Vercel env failures:");
+    expect(output).toContain("missing STRIPE_RESTRICTED_KEY");
   });
 
   it("keeps normal status informational but makes readiness gate fail when not ready", async () => {

@@ -96,10 +96,10 @@ Current local verification:
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
 - `npm run smoke:ready`: requires production health to report live Supabase and Stripe env wiring before launch
 - `npm run launch:status`: summarizes git cleanliness, local env readiness, schema checks, and production smoke state
-- `npm run launch:ready`: includes live Supabase and Stripe checks for the final pre-charge gate and exits nonzero until ready
+- `npm run launch:ready`: includes live Supabase, Stripe, and Vercel env checks for the final pre-charge gate and exits nonzero until ready
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 45 files passed, 141 tests passed
+- Current test suite: 45 files passed, 142 tests passed
 
 The setup, launch-status, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 
