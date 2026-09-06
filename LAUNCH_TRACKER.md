@@ -13,6 +13,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 ## Stripe
 
+- [ ] Run `npm run stripe:catalog-plan` and use its generated Stripe CLI commands for the Pro catalog.
 - [ ] Create monthly and yearly Pro products/prices.
 - [ ] Create the restricted runtime key with Customers read/write, Checkout Sessions write, Customer Portal Sessions write, and Subscriptions read/write.
 - [ ] Run `npm run stripe:live-check` after local Stripe env vars are installed.

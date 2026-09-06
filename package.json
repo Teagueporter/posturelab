@@ -12,6 +12,7 @@
     "secrets:check": "node scripts/check-secrets.mjs",
     "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
     "supabase:live-check": "node scripts/check-live-supabase.mjs",
+    "stripe:catalog-plan": "node scripts/stripe-catalog-plan.mjs",
     "stripe:live-check": "node scripts/check-live-stripe.mjs",
     "vercel:env-check": "node scripts/check-vercel-env.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
