@@ -24,6 +24,16 @@ describe("Stripe billing integration contracts", () => {
     expect(accountActions).not.toContain("payment_method_types");
   });
 
+  it("documents Stripe restricted-key permissions that match the runtime API calls", () => {
+    const setupDoc = source("PRODUCTION_SETUP.md");
+
+    expect(setupDoc).toContain("Customers`: read/write");
+    expect(setupDoc).toContain("Checkout Sessions`: write");
+    expect(setupDoc).toContain("Customer Portal Sessions`: write");
+    expect(setupDoc).toContain("Subscriptions`: read/write");
+    expect(setupDoc).toContain("does not need a broad Stripe secret key");
+  });
+
   it("disables paid checkout buttons until billing environment variables are configured", () => {
     const pricingPage = source("src/app/pricing/page.tsx");
 

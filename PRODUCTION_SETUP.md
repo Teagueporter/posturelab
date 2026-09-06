@@ -45,6 +45,15 @@ STRIPE_PRO_YEARLY_PRICE_ID=
 
 Use a Stripe restricted key when possible. Do not commit `.env.local` or real keys.
 
+The runtime Stripe restricted key should be scoped to the smallest surface the app uses:
+
+- `Customers`: read/write, for creating and reusing the Stripe customer mapped to a Supabase user
+- `Checkout Sessions`: write, for creating hosted Pro subscription checkout
+- `Customer Portal Sessions`: write, for opening billing self-service from Account
+- `Subscriptions`: read/write, for webhook subscription retrieval and account-deletion cancellation
+
+The app does not need a broad Stripe secret key for normal runtime billing. If a restricted key returns a Stripe `403` during test checkout, add only the missing permission shown in Stripe request logs and test again.
+
 Expected value shapes:
 
 - `NEXT_PUBLIC_APP_URL`: absolute `https://...` app URL with no trailing slash in production
