@@ -24,6 +24,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 - [ ] Add `http://localhost:3000/auth/callback` and `https://posturelab-six.vercel.app/auth/callback` as Supabase Auth redirect URLs.
 - [ ] Capture service role key for local and Vercel server env.
 - [x] Capture project URL and modern publishable key for local env.
+- [x] Add public Supabase URL and publishable key to Vercel Production and Preview.
 
 ## Stripe
 
@@ -41,6 +42,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 ## Vercel
 
 - [ ] Add Supabase and Stripe env vars to Production and Preview.
+- [x] Confirm Vercel Production is deployed from current commit `80ce0aca4081826af3e6ff99b2e1d758a5220366`.
 - [ ] Run `npm run vercel:env-plan` locally before adding Vercel env vars so secret values are never printed in setup logs.
 - [ ] Run `npm run vercel:env-check` after adding Vercel env vars.
 - [ ] Redeploy production.
