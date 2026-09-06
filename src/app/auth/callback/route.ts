@@ -19,7 +19,14 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${getAppUrl()}/login?message=Unable%20to%20finish%20sign%20in`);
   }
 
-  await ensureUserProfile(supabase);
+  try {
+    const user = await ensureUserProfile(supabase);
+    if (!user) {
+      return NextResponse.redirect(`${getAppUrl()}/login?message=Unable%20to%20finish%20sign%20in`);
+    }
+  } catch {
+    return NextResponse.redirect(`${getAppUrl()}/login?message=Unable%20to%20finish%20sign%20in`);
+  }
 
   redirect(next);
 }

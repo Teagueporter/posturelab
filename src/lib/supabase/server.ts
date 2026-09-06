@@ -54,7 +54,7 @@ export async function ensureUserProfile(supabase: SupabaseServerClient) {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
 
-  await supabase.from("profiles").upsert(
+  const { error: profileError } = await supabase.from("profiles").upsert(
     {
       id: data.user.id,
       email: data.user.email ?? null,
@@ -62,6 +62,9 @@ export async function ensureUserProfile(supabase: SupabaseServerClient) {
     },
     { onConflict: "id" },
   );
+  if (profileError) {
+    throw new Error("Unable to create user profile");
+  }
 
   return data.user;
 }

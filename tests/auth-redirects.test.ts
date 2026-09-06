@@ -33,6 +33,18 @@ describe("auth redirect helpers", () => {
     expect(accountPage).toContain("Cloud accounts are not live yet");
     expect(accountPage).toContain("Start local scan");
   });
+
+  it("fails closed when profile creation cannot be completed after auth callback", () => {
+    const callbackRoute = source("src/app/auth/callback/route.ts");
+    const supabaseServer = source("src/lib/supabase/server.ts");
+
+    expect(supabaseServer).toContain("error: profileError");
+    expect(supabaseServer).toContain('throw new Error("Unable to create user profile")');
+    expect(callbackRoute).toContain("const user = await ensureUserProfile(supabase)");
+    expect(callbackRoute).toContain("if (!user)");
+    expect(callbackRoute).toContain("} catch {");
+    expect(callbackRoute.match(/Unable%20to%20finish%20sign%20in/g)?.length).toBeGreaterThanOrEqual(3);
+  });
 });
 
 function source(filePath: string) {
