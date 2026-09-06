@@ -69,6 +69,21 @@ describe("Stripe billing integration contracts", () => {
     expect(webhookRoute).toContain("claimStripeEvent(event)");
   });
 
+  it("processes the same Stripe webhook events documented for setup", () => {
+    const webhookRoute = source("src/app/api/stripe/webhook/route.ts");
+    const eventsSource = source("src/lib/stripe/webhook-events.ts");
+
+    for (const event of [
+      "checkout.session.completed",
+      "customer.subscription.created",
+      "customer.subscription.updated",
+      "customer.subscription.deleted",
+    ]) {
+      expect(eventsSource).toContain(event);
+      expect(webhookRoute).toContain(`case "${event}"`);
+    }
+  });
+
   it("only treats processed events and fresh in-flight events as Stripe webhook duplicates", () => {
     const webhookRoute = source("src/app/api/stripe/webhook/route.ts");
 
