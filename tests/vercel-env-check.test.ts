@@ -31,7 +31,7 @@ describe("Vercel env presence checker", () => {
     expect(output).not.toContain("encrypted-secret-blob");
   });
 
-  it("requires each configured variable to cover production, preview, and development", () => {
+  it("requires each configured variable to cover production and preview", () => {
     const result = checkVercelEnvPresence({
       required: ["NEXT_PUBLIC_APP_URL"],
       runVercel: () =>
@@ -47,7 +47,7 @@ describe("Vercel env presence checker", () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(result.checks[0]?.missingTargets).toEqual(["preview", "development"]);
-    expect(formatVercelEnvPresence(result)).toContain("missing preview, development");
+    expect(result.checks[0]?.missingTargets).toEqual(["preview"]);
+    expect(formatVercelEnvPresence(result)).toContain("missing preview");
   });
 });

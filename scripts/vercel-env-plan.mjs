@@ -7,7 +7,7 @@ export const sensitiveEnvNames = new Set([
   "STRIPE_WEBHOOK_SECRET",
 ]);
 
-export const vercelEnvTargets = ["production", "preview", "development"];
+export const vercelEnvTargets = ["production", "preview"];
 
 export function buildVercelEnvPlan({
   env = envWithLocalFile(),

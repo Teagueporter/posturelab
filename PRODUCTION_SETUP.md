@@ -94,7 +94,7 @@ npm run smoke:ready
 npm run launch:ready
 ```
 
-This requires `/api/health` to report both Supabase and Stripe as configured, requires the pricing page to show live checkout controls, checks the live Supabase and Stripe setup from local env, confirms Vercel has the required env var names across production, preview, and development, and exits nonzero until every readiness check passes.
+This requires `/api/health` to report both Supabase and Stripe as configured, requires the pricing page to show live checkout controls, checks the live Supabase and Stripe setup from local env, confirms Vercel has the required env var names across production and preview, and exits nonzero until every readiness check passes.
 
 ## Supabase
 
@@ -171,18 +171,11 @@ Before going live, review Stripe Tax. The app intentionally does not enable `aut
 2. Confirm the Vercel project `posturelab` is linked to the GitHub repo and uses the Next.js framework preset.
 3. Enable only the observability products you want billed/active. The app already mounts the official Vercel Web Analytics and Speed Insights components. Vercel's September 2026 docs list Speed Insights as available on all plans with a free event allocation, while Web Analytics on Pro is event-billed after included usage.
 4. Add the remaining environment variables for Production and Preview. Mark server secrets as sensitive where available. `NEXT_PUBLIC_APP_URL` is already set to `https://posturelab-six.vercel.app`. Use `npm run vercel:env-plan` after filling `.env.local`; it prints interactive `vercel env add` commands by variable name without printing secret values.
-   After adding variables, run `npm run vercel:env-check` to confirm Vercel has every required variable name for production, preview, and development without printing values.
+   After adding variables, run `npm run vercel:env-check` to confirm Vercel has every required variable name for production and preview without printing values.
 
 ```bash
-vercel env add NEXT_PUBLIC_SUPABASE_URL production,preview,development --value "https://PROJECT_REF.supabase.co" --no-sensitive --yes
-vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production,preview,development --value "sb_publishable_..." --no-sensitive --yes
-vercel env add SUPABASE_SERVICE_ROLE_KEY production,preview,development --value "..." --sensitive --yes
-
-vercel env add STRIPE_RESTRICTED_KEY production,preview,development --value "rk_..." --sensitive --yes
-vercel env add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY production,preview,development --value "pk_..." --no-sensitive --yes
-vercel env add STRIPE_WEBHOOK_SECRET production,preview,development --value "whsec_..." --sensitive --yes
-vercel env add STRIPE_PRO_MONTHLY_PRICE_ID production,preview,development --value "price_..." --no-sensitive --yes
-vercel env add STRIPE_PRO_YEARLY_PRICE_ID production,preview,development --value "price_..." --no-sensitive --yes
+npm run vercel:env-plan
+npm run vercel:env-check
 ```
 
 5. Deploy a preview or production build.
