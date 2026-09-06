@@ -4,6 +4,7 @@ import { createStripeClient } from "@/lib/stripe/server";
 import { getRequiredServerEnv } from "@/lib/env";
 import { upsertSubscriptionFromStripe } from "@/lib/subscriptions";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { stripeWebhookEvent } from "@/lib/stripe/webhook-events";
 import { logRouteDone, logRouteError, logRouteStart, routeLogContext } from "@/lib/observability/logging";
 
 export const runtime = "nodejs";
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
 async function processStripeEvent(event: Stripe.Event, stripe: Stripe) {
   try {
     switch (event.type) {
-      case "checkout.session.completed": {
+      case stripeWebhookEvent.checkoutSessionCompleted: {
         const session = event.data.object as Stripe.Checkout.Session;
         if (typeof session.subscription === "string") {
           const subscription = await stripe.subscriptions.retrieve(session.subscription);
@@ -66,9 +67,9 @@ async function processStripeEvent(event: Stripe.Event, stripe: Stripe) {
         }
         break;
       }
-      case "customer.subscription.created":
-      case "customer.subscription.updated":
-      case "customer.subscription.deleted": {
+      case stripeWebhookEvent.subscriptionCreated:
+      case stripeWebhookEvent.subscriptionUpdated:
+      case stripeWebhookEvent.subscriptionDeleted: {
         await upsertSubscriptionFromStripe(event.data.object as Stripe.Subscription);
         break;
       }

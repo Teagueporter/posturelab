@@ -73,15 +73,15 @@ describe("Stripe billing integration contracts", () => {
     const webhookRoute = source("src/app/api/stripe/webhook/route.ts");
     const eventsSource = source("src/lib/stripe/webhook-events.ts");
 
-    for (const event of [
-      "checkout.session.completed",
-      "customer.subscription.created",
-      "customer.subscription.updated",
-      "customer.subscription.deleted",
-    ]) {
-      expect(eventsSource).toContain(event);
-      expect(webhookRoute).toContain(`case "${event}"`);
-    }
+    expect(webhookRoute).toContain('import { stripeWebhookEvent } from "@/lib/stripe/webhook-events"');
+    expect(eventsSource).toContain("checkout.session.completed");
+    expect(eventsSource).toContain("customer.subscription.created");
+    expect(eventsSource).toContain("customer.subscription.updated");
+    expect(eventsSource).toContain("customer.subscription.deleted");
+    expect(webhookRoute).toContain("case stripeWebhookEvent.checkoutSessionCompleted");
+    expect(webhookRoute).toContain("case stripeWebhookEvent.subscriptionCreated");
+    expect(webhookRoute).toContain("case stripeWebhookEvent.subscriptionUpdated");
+    expect(webhookRoute).toContain("case stripeWebhookEvent.subscriptionDeleted");
   });
 
   it("only treats processed events and fresh in-flight events as Stripe webhook duplicates", () => {
