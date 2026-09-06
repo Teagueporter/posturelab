@@ -2,21 +2,34 @@ import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { envWithLocalFile, invalidEnvMessages, missingEnvNames } from "./setup-check.mjs";
 import { checkSupabaseSchema } from "./check-supabase-schema.mjs";
+import { checkLiveSupabase } from "./check-live-supabase.mjs";
+import { checkLiveStripe } from "./check-live-stripe.mjs";
 import { runProductionSmokeChecks } from "./smoke-production.mjs";
 
 export async function buildLaunchStatus({
   env = envWithLocalFile(),
   fetchImpl = globalThis.fetch,
   runGit = defaultRunGit,
+  includeLiveServices = false,
+  liveSupabaseCheck = includeLiveServices ? checkLiveSupabase({ env }) : null,
+  liveStripeCheck = includeLiveServices ? checkLiveStripe({ env }) : null,
 } = {}) {
   const missingEnv = missingEnvNames(env);
   const invalidEnv = invalidEnvMessages(env);
   const schemaFailures = checkSupabaseSchema();
   const productionSmoke = await safeSmoke(fetchImpl, env.NEXT_PUBLIC_APP_URL);
   const git = gitStatus(runGit);
+  const liveSupabase = liveSupabaseCheck ? await liveSupabaseCheck : null;
+  const liveStripe = liveStripeCheck ? await liveStripeCheck : null;
 
   return {
-    ok: missingEnv.length === 0 && invalidEnv.length === 0 && schemaFailures.length === 0 && productionSmoke.ok && git.clean,
+    ok:
+      missingEnv.length === 0 &&
+      invalidEnv.length === 0 &&
+      schemaFailures.length === 0 &&
+      productionSmoke.ok &&
+      git.clean &&
+      (!includeLiveServices || (liveSupabase?.ok === true && liveStripe?.ok === true)),
     git,
     localEnvironment: {
       configured: missingEnv.length === 0 && invalidEnv.length === 0,
@@ -28,6 +41,8 @@ export async function buildLaunchStatus({
       failures: schemaFailures,
     },
     productionSmoke,
+    liveSupabase,
+    liveStripe,
   };
 }
 
@@ -39,6 +54,13 @@ export function formatLaunchStatus(status) {
     `- Supabase schema: ${status.supabaseSchema.ok ? "pass" : `${status.supabaseSchema.failures.length} failure(s)`}`,
     `- Production smoke: ${status.productionSmoke.ok ? "pass" : "fail"} (${status.productionSmoke.detail})`,
   ];
+
+  if (status.liveSupabase) {
+    lines.push(`- Live Supabase: ${status.liveSupabase.ok ? "pass" : "fail"}`);
+  }
+  if (status.liveStripe) {
+    lines.push(`- Live Stripe: ${status.liveStripe.ok ? "pass" : "fail"}`);
+  }
 
   if (status.localEnvironment.missing.length > 0) {
     lines.push("Missing env vars:");
@@ -52,8 +74,34 @@ export function formatLaunchStatus(status) {
     lines.push("Supabase schema failures:");
     lines.push(...status.supabaseSchema.failures.map((failure) => `  - ${failure}`));
   }
+  if (status.liveSupabase && !status.liveSupabase.ok) {
+    lines.push(...formatNestedLiveFailures("Live Supabase failures:", status.liveSupabase));
+  }
+  if (status.liveStripe && !status.liveStripe.ok) {
+    lines.push(...formatNestedLiveFailures("Live Stripe failures:", status.liveStripe));
+  }
 
   return lines.join("\n");
+}
+
+function formatNestedLiveFailures(title, result) {
+  const lines = [title];
+  if (result.missing?.length > 0) {
+    lines.push(...result.missing.map((name) => `  - missing ${name}`));
+  }
+  if (result.invalid?.length > 0) {
+    lines.push(...result.invalid.map((message) => `  - ${message}`));
+  }
+  if (result.tableChecks?.length > 0) {
+    lines.push(...result.tableChecks.filter((check) => !check.ok).map((check) => `  - ${check.table}: ${check.detail}`));
+  }
+  if (result.storage && !result.storage.ok) {
+    lines.push(`  - storage: ${result.storage.detail}`);
+  }
+  if (result.priceChecks?.length > 0) {
+    lines.push(...result.priceChecks.filter((check) => !check.ok).map((check) => `  - ${check.name}: ${check.detail}`));
+  }
+  return lines;
 }
 
 async function safeSmoke(fetchImpl, baseUrl) {
@@ -91,7 +139,9 @@ function defaultRunGit(args) {
 }
 
 async function main() {
-  const status = await buildLaunchStatus();
+  const status = await buildLaunchStatus({
+    includeLiveServices: process.argv.includes("--include-live-services"),
+  });
   console.log(formatLaunchStatus(status));
 }
 

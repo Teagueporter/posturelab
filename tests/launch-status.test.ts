@@ -32,6 +32,55 @@ describe("launch status command", () => {
 
     expect(status.git.clean).toBe(true);
   });
+
+  it("can include live Supabase and Stripe checks without printing secrets", async () => {
+    const status = await buildLaunchStatus({
+      env: validEnv(),
+      fetchImpl: fakeLiveSmokeFetch as typeof fetch,
+      runGit: fakeGit,
+      includeLiveServices: true,
+      liveSupabaseCheck: Promise.resolve({ ok: true, missing: [], invalid: [], tableChecks: [], storage: { ok: true, detail: "private" } }),
+      liveStripeCheck: Promise.resolve({ ok: true, missing: [], invalid: [], priceChecks: [] }),
+    });
+
+    const output = formatLaunchStatus(status);
+
+    expect(status.ok).toBe(true);
+    expect(output).toContain("Live Supabase: pass");
+    expect(output).toContain("Live Stripe: pass");
+    expect(output).not.toContain("rk_test_example");
+    expect(output).not.toContain("sb_secret_example");
+  });
+
+  it("surfaces live service failures when requested", async () => {
+    const status = await buildLaunchStatus({
+      env: validEnv(),
+      fetchImpl: fakeLiveSmokeFetch as typeof fetch,
+      runGit: fakeGit,
+      includeLiveServices: true,
+      liveSupabaseCheck: Promise.resolve({
+        ok: false,
+        missing: [],
+        invalid: [],
+        tableChecks: [{ table: "scans", ok: false, detail: "permission denied" }],
+        storage: { ok: false, detail: "scan-images bucket is missing" },
+      }),
+      liveStripeCheck: Promise.resolve({
+        ok: false,
+        missing: [],
+        invalid: [],
+        priceChecks: [{ name: "monthly", ok: false, detail: "expected month interval" }],
+      }),
+    });
+
+    const output = formatLaunchStatus(status);
+
+    expect(status.ok).toBe(false);
+    expect(output).toContain("Live Supabase failures:");
+    expect(output).toContain("scans: permission denied");
+    expect(output).toContain("storage: scan-images bucket is missing");
+    expect(output).toContain("monthly: expected month interval");
+  });
 });
 
 async function fakeSmokeFetch(input: string | URL) {
@@ -47,6 +96,23 @@ async function fakeSmokeFetch(input: string | URL) {
   }
   if (url.endsWith("/pricing")) {
     return new Response("Billing is not live yet Checkout not live yet");
+  }
+  return new Response("{}", { status: 400 });
+}
+
+async function fakeLiveSmokeFetch(input: string | URL) {
+  const url = input.toString();
+  if (url.endsWith("/api/health")) {
+    return Response.json({
+      ok: true,
+      services: {
+        supabase: "configured",
+        stripe: "configured",
+      },
+    });
+  }
+  if (url.endsWith("/pricing")) {
+    return new Response("<form><button>Upgrade</button></form>");
   }
   return new Response("{}", { status: 400 });
 }
