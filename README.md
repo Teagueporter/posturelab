@@ -61,6 +61,7 @@ Open `http://localhost:3000`.
 
 For paid-web-app setup, see [PRODUCTION_SETUP.md](/Users/teague/Documents/PostureProject/PRODUCTION_SETUP.md).
 For remaining launch work, see [LAUNCH_TRACKER.md](/Users/teague/Documents/PostureProject/LAUNCH_TRACKER.md).
+For the stack decision, see [ADR 0001](/Users/teague/Documents/PostureProject/docs/adr/0001-web-first-supabase-stripe-vercel.md).
 
 ## Local Supabase
 
@@ -115,7 +116,7 @@ Current local verification:
 - `npm run vercel:deployment-check`: confirms the production Vercel alias points to a Ready deployment
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 54 files passed, 179 tests passed
+- Current test suite: 55 files passed, 180 tests passed
 
 The setup, launch runbook/status, Supabase project-plan, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe, Supabase, and Vercel OIDC secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 

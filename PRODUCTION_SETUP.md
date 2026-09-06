@@ -1,6 +1,7 @@
 # Production Setup
 
 This app is now structured for a web-first paid product using Supabase, Stripe, and Vercel.
+The stack decision is recorded in `docs/adr/0001-web-first-supabase-stripe-vercel.md`.
 
 Current Vercel production checkpoint:
 
