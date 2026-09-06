@@ -85,11 +85,15 @@ Current local verification:
 
 - `npm run verify`: runs the secret scanner, Supabase schema checker, tests, lint, and production build
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
-- Current test suite: 39 files passed, 117 tests passed
+- Current test suite: 40 files passed, 120 tests passed
 
 The setup checker validates local environment variable shape. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 
 GitHub Actions runs `npm run verify` on pull requests and pushes to `main`.
+
+## Support And Security
+
+For product support, see [SUPPORT.md](/Users/teague/Documents/PostureProject/SUPPORT.md). For private vulnerability reporting and sensitive-data rules, see [SECURITY.md](/Users/teague/Documents/PostureProject/SECURITY.md).
 
 ## Project Boundary
 
