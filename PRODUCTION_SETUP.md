@@ -207,7 +207,11 @@ The first Vercel production deployment was created from this machine. It is usab
 
 Keep `.vercel/` local. It contains project-link metadata and is intentionally ignored by git.
 
-The Vercel runtime-log connector returned `403 Forbidden` for this project during setup and again against deployment `dpl_Fps8LmZwgeWhqpQuzmMUBhNyY1EG`. Use the Vercel dashboard or grant the connector log access before relying on automated runtime-log checks.
+## Codex Connector Status
+
+- Supabase connector: available; organizations, projects, and project cost were verified on 2026-09-06.
+- Vercel connector: partially available. Runtime logs and project/deployment metadata returned scope authorization errors for `teagueporters-projects`; use the authenticated Vercel CLI until connector scope access is fixed.
+- Stripe connector: no Stripe MCP create/list tools were exposed by Codex tool discovery in this session. Use the Stripe skill guidance plus Stripe CLI/Dashboard for catalog, restricted key, and webhook setup.
 
 ## Domain Options
 

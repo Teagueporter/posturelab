@@ -4,9 +4,16 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [ ] Run `npm run launch:runbook` before starting live service setup.
 
+## Connector Status
+
+- Supabase connector: available; organizations, projects, and project cost were verified on 2026-09-06.
+- Vercel connector: partially available, but deployment/project metadata returned scope authorization errors for `teagueporters-projects`; use the authenticated Vercel CLI until connector scope access is fixed.
+- Stripe connector: no Stripe MCP create/list tools were exposed by Codex tool discovery in this session; use the Stripe skill guidance plus Stripe CLI/Dashboard for catalog, restricted key, and webhook setup.
+
 ## Supabase
 
-- [ ] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.
+- [x] Run `npm run supabase:project-plan` to confirm the connector-quoted project target before approval.
+- [x] Re-verified with the Supabase connector on 2026-09-06 12:03 MDT: organization `teagueporter's projects` (`vercel_icfg_qqsgYASShKraJS8qi3PBxC9e`) and project cost `$0/month`.
 - [ ] Create Supabase project `posturelab` in `teagueporter's projects` after explicit approval for the connector-quoted `$0/month` cost.
 - [ ] Apply `supabase/migrations/20260906052834_initial_production_schema.sql`.
 - [ ] Run `npm run supabase:live-check` after local Supabase env vars are installed.

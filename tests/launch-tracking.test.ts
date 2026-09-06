@@ -9,7 +9,11 @@ describe("launch tracking", () => {
     expect(tracker).toContain("## Supabase");
     expect(tracker).toContain("## Stripe");
     expect(tracker).toContain("## Vercel");
+    expect(tracker).toContain("## Connector Status");
     expect(tracker).toContain("403 Resource not accessible by integration");
+    expect(tracker).toContain("Re-verified with the Supabase connector");
+    expect(tracker).toContain("project cost `$0/month`");
+    expect(tracker).toContain("no Stripe MCP create/list tools were exposed");
   });
 
   it("keeps GitHub issue templates for each external launch track", () => {
