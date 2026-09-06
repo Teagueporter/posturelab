@@ -6,7 +6,7 @@ Current Vercel production checkpoint:
 
 - Project: `teagueporters-projects/posturelab`
 - Production URL: `https://posturelab-six.vercel.app`
-- Deployment ID: `dpl_2cbHi8jaXCfQYrcXCS6FFtmTSeXk`
+- Deployment ID: `dpl_2nMmC9K64xaqNwLKLuktG5coGcqf`
 - Status: deployed and responding; `NEXT_PUBLIC_APP_URL` is configured in Vercel; `/api/health` currently reports Supabase and Stripe as `missing-env`
 - Latest smoke check: `npm run smoke:prod` passed against the production alias with disabled checkout and unsigned webhook rejection verified
 
@@ -159,7 +159,7 @@ customer.subscription.deleted
 
 8. Add the webhook signing secret to `STRIPE_WEBHOOK_SECRET`.
 9. Confirm duplicate webhook deliveries return `200` and do not create duplicate subscription side effects. Stripe can send the same event more than once, and the app records processed event IDs in `stripe_webhook_events`.
-10. Confirm failed webhook deliveries are retryable. The route only treats already processed events and fresh in-flight events as duplicates; failed events and stale processing claims are re-claimed for retry. If the route cannot mark a processed event in Supabase, it returns `500` so Stripe retries instead of silently losing webhook bookkeeping.
+10. Confirm failed webhook deliveries are retryable. The route only treats already processed events and fresh in-flight events as duplicates; failed events and stale processing claims are re-claimed for retry. If the route cannot sync subscription state or mark a processed event in Supabase, it returns `500` so Stripe retries instead of silently losing webhook bookkeeping.
 
 Before going live, review Stripe Tax. The app intentionally does not enable `automatic_tax` until tax registrations are configured.
 

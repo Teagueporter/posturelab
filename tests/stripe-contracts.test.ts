@@ -91,6 +91,15 @@ describe("Stripe billing integration contracts", () => {
     expect(webhookRoute).toContain('super(`Unable to mark Stripe event as ${targetStatus}`)');
   });
 
+  it("fails webhook subscription sync when Supabase rejects the read or write", () => {
+    const subscriptionSource = source("src/lib/subscriptions.ts");
+
+    expect(subscriptionSource).toContain("if (existing.error)");
+    expect(subscriptionSource).toContain('throw new Error("Unable to read Stripe customer subscription mapping")');
+    expect(subscriptionSource).toContain("const { error } = await supabase.from(\"subscriptions\").upsert");
+    expect(subscriptionSource).toContain('throw new Error("Unable to sync Stripe subscription state")');
+  });
+
   it("documents Stripe Tax as a launch consideration instead of enabling it prematurely", () => {
     const setupDoc = source("PRODUCTION_SETUP.md");
     const checkoutAction = source("src/app/pricing/actions.ts");

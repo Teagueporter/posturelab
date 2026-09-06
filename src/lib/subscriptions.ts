@@ -53,13 +53,17 @@ export async function upsertSubscriptionFromStripe(subscription: Stripe.Subscrip
   const customerId = getCustomerId(subscription.customer);
   const existing = customerId
     ? await supabase.from("subscriptions").select("user_id").eq("stripe_customer_id", customerId).maybeSingle()
-    : { data: null };
+    : { data: null, error: null };
+  if (existing.error) {
+    throw new Error("Unable to read Stripe customer subscription mapping");
+  }
+
   const userId = subscription.metadata.user_id ?? existing.data?.user_id;
 
   if (!userId) return;
 
   const item = subscription.items.data[0];
-  await supabase.from("subscriptions").upsert(
+  const { error } = await supabase.from("subscriptions").upsert(
     {
       user_id: userId,
       stripe_customer_id: customerId,
@@ -71,6 +75,10 @@ export async function upsertSubscriptionFromStripe(subscription: Stripe.Subscrip
     },
     { onConflict: "user_id" },
   );
+
+  if (error) {
+    throw new Error("Unable to sync Stripe subscription state");
+  }
 }
 
 function freeSubscription(): SubscriptionState {
