@@ -102,7 +102,7 @@ Current local verification:
 - `npm run supabase:migration-plan`: validates and summarizes the checked-in Supabase migration before applying it to a live project
 - `npm run supabase:live-check`: checks live Supabase tables and the private scan-image bucket after env vars are installed
 - `npm run stripe:catalog-plan`: prints Stripe CLI commands for the Pro monthly/yearly products and prices without printing keys
-- `npm run stripe:live-check`: checks live Stripe monthly/yearly recurring prices after env vars are installed
+- `npm run stripe:live-check`: checks live Stripe monthly/yearly recurring prices, amounts, currency, lookup keys, and active products after env vars are installed
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
 - `npm run smoke:ready`: requires production health to report live Supabase and Stripe env wiring before launch
 - `npm run launch:runbook`: prints the ordered go-live sequence across Supabase, Stripe, Vercel, and final readiness gates without printing keys
@@ -111,7 +111,7 @@ Current local verification:
 - `npm run vercel:deployment-check`: confirms the production Vercel alias points to a Ready deployment
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 52 files passed, 172 tests passed
+- Current test suite: 52 files passed, 173 tests passed
 
 The setup, launch runbook/status, Supabase project-plan, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe, Supabase, and Vercel OIDC secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 

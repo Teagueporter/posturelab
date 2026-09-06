@@ -1,6 +1,7 @@
 import { pathToFileURL } from "node:url";
 import Stripe from "stripe";
 import { envWithLocalFile, invalidEnvMessages } from "./setup-check.mjs";
+import { stripeCatalogItems } from "./stripe-catalog-plan.mjs";
 
 export const requiredStripeLiveEnv = [
   "STRIPE_RESTRICTED_KEY",
@@ -11,8 +12,14 @@ export const requiredStripeLiveEnv = [
 ];
 
 export const expectedStripePrices = [
-  { name: "monthly", envName: "STRIPE_PRO_MONTHLY_PRICE_ID", interval: "month" },
-  { name: "yearly", envName: "STRIPE_PRO_YEARLY_PRICE_ID", interval: "year" },
+  ...stripeCatalogItems.map((item) => ({
+    name: item.key,
+    envName: item.priceEnvName,
+    interval: item.interval,
+    unitAmount: item.unitAmount,
+    currency: "usd",
+    lookupKey: item.lookupKey,
+  })),
 ];
 
 export async function checkLiveStripe({
@@ -88,12 +95,18 @@ async function checkStripePrice(stripe, priceId, expected) {
     const price = await stripe.prices.retrieve(priceId, { expand: ["product"] });
     const recurringInterval = price.recurring?.interval ?? null;
     const productActive = typeof price.product === "object" && price.product ? price.product.active !== false : true;
-    const ok = price.active === true && recurringInterval === expected.interval && productActive;
+    const ok =
+      price.active === true &&
+      recurringInterval === expected.interval &&
+      productActive &&
+      price.unit_amount === expected.unitAmount &&
+      price.currency === expected.currency &&
+      price.lookup_key === expected.lookupKey;
 
     return {
       name: expected.name,
       ok,
-      detail: ok ? `${expected.interval} recurring price active` : priceFailureDetail(price.active, recurringInterval, expected.interval, productActive),
+      detail: ok ? `${expected.interval} recurring ${formatCurrency(expected.unitAmount, expected.currency)} price active` : priceFailureDetail(price, expected, recurringInterval, productActive),
     };
   } catch (error) {
     return {
@@ -104,12 +117,19 @@ async function checkStripePrice(stripe, priceId, expected) {
   }
 }
 
-function priceFailureDetail(priceActive, actualInterval, expectedInterval, productActive) {
+function priceFailureDetail(price, expected, actualInterval, productActive) {
   const failures = [];
-  if (priceActive !== true) failures.push("price inactive");
-  if (actualInterval !== expectedInterval) failures.push(`expected ${expectedInterval} interval`);
+  if (price.active !== true) failures.push("price inactive");
+  if (actualInterval !== expected.interval) failures.push(`expected ${expected.interval} interval`);
   if (!productActive) failures.push("product inactive");
+  if (price.unit_amount !== expected.unitAmount) failures.push(`expected ${formatCurrency(expected.unitAmount, expected.currency)}`);
+  if (price.currency !== expected.currency) failures.push(`expected ${expected.currency} currency`);
+  if (price.lookup_key !== expected.lookupKey) failures.push(`expected ${expected.lookupKey} lookup key`);
   return failures.join(", ") || "price check failed";
+}
+
+function formatCurrency(unitAmount, currency) {
+  return `${currency.toUpperCase()} ${(unitAmount / 100).toFixed(2)}`;
 }
 
 function safeError(error) {
