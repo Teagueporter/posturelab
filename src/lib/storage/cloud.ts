@@ -254,18 +254,22 @@ export async function hydrateLocalWorkoutCompletionsFromCloud(existingCompletion
 
 export async function deleteWorkoutCompletionFromCloud(itemName: string, date: string) {
   const supabase = createSupabaseBrowserClient();
-  if (!supabase) return;
+  if (!supabase) return { deleted: false, reason: "not-configured" as const };
 
   const { data: userResult } = await supabase.auth.getUser();
   const user = userResult.user;
-  if (!user) return;
+  if (!user) return { deleted: false, reason: "not-signed-in" as const };
 
-  await supabase
+  const { error } = await supabase
     .from("workout_completions")
     .delete()
     .eq("user_id", user.id)
     .eq("completion_date", date)
     .eq("item_name", itemName);
+
+  if (error) return { deleted: false, reason: "delete-failed" as const };
+
+  return { deleted: true as const };
 }
 
 export async function syncWeeklyReviewToCloud(weekStart: string, summary: WeeklyProgressReview) {

@@ -47,4 +47,15 @@ describe("cloud sync contracts", () => {
     expect(deleteFailureIndex).toBeGreaterThan(listFailureIndex);
     expect(scanDeleteIndex).toBeGreaterThan(deleteFailureIndex);
   });
+
+  it("returns explicit workout completion delete failures before reporting success", () => {
+    const cloudSource = readFileSync(path.join(process.cwd(), "src/lib/storage/cloud.ts"), "utf8");
+    const workoutDeleteIndex = cloudSource.indexOf('supabase.from("workout_completions")');
+    const deleteFailureIndex = cloudSource.indexOf('"delete-failed"', workoutDeleteIndex);
+    const successIndex = cloudSource.indexOf("deleted: true as const", workoutDeleteIndex);
+
+    expect(workoutDeleteIndex).toBeGreaterThan(-1);
+    expect(deleteFailureIndex).toBeGreaterThan(workoutDeleteIndex);
+    expect(successIndex).toBeGreaterThan(deleteFailureIndex);
+  });
 });
