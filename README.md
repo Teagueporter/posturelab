@@ -77,6 +77,7 @@ npm run supabase:status
 ## Verification
 
 ```bash
+npm run env:template-check
 npm run verify
 npm run supabase:project-plan
 npm run supabase:live-check
@@ -93,6 +94,7 @@ npm run vercel:env-check
 
 Current local verification:
 
+- `npm run env:template-check`: confirms `.env.example` has exactly the required launch keys and no secret-shaped values
 - `npm run verify`: runs the secret scanner, Supabase schema checker, tests, lint, and production build
 - `npm run supabase:project-plan`: prints the connector-confirmed Supabase project target, approval phrase, migration, redirect URLs, and live-check steps without printing keys
 - `npm run supabase:live-check`: checks live Supabase tables and the private scan-image bucket after env vars are installed
@@ -105,7 +107,7 @@ Current local verification:
 - `npm run launch:ready`: includes live Supabase, Stripe, and Vercel env checks for the final pre-charge gate and exits nonzero until ready
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
 - `npm run vercel:env-check`: checks required Vercel env var names and targets without printing values
-- Current test suite: 48 files passed, 151 tests passed
+- Current test suite: 49 files passed, 154 tests passed
 
 The setup, launch runbook/status, Supabase project-plan, Stripe catalog-plan, Vercel env-plan, and Vercel env-check commands do not print secret values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 

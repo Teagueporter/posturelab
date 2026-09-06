@@ -11,10 +11,12 @@ describe("CI workflow", () => {
   });
 
   it("keeps verify aligned with the local quality gate", () => {
+    expect(packageJson.scripts.verify).toContain("npm run env:template-check");
     expect(packageJson.scripts.verify).toContain("npm test");
     expect(packageJson.scripts.verify).toContain("npm run lint");
     expect(packageJson.scripts.verify).toContain("npm run build");
     expect(packageJson.scripts.verify).toContain("npm run supabase:schema-check");
+    expect(packageJson.scripts["env:template-check"]).toBe("node scripts/check-env-template.mjs");
     expect(packageJson.scripts["supabase:project-plan"]).toBe("node scripts/supabase-project-plan.mjs");
     expect(packageJson.scripts["supabase:live-check"]).toBe("node scripts/check-live-supabase.mjs");
     expect(packageJson.scripts["stripe:catalog-plan"]).toBe("node scripts/stripe-catalog-plan.mjs");

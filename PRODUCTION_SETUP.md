@@ -66,6 +66,7 @@ Expected value shapes:
 Check configured values without printing secrets:
 
 ```bash
+npm run env:template-check
 npm run setup:check
 npm run launch:runbook
 npm run supabase:schema-check
