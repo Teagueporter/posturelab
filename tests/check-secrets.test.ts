@@ -4,12 +4,13 @@ import { findSecretsInText } from "../scripts/check-secrets.mjs";
 const join = (...parts: string[]) => parts.join("");
 
 describe("secret scanner", () => {
-  it("detects Stripe and Supabase secret-shaped values", () => {
+  it("detects Stripe, Supabase, and Vercel secret-shaped values", () => {
     const text = [
       join("sk_", "live_", "abcdefghijklmnopqrstuvwxyz123456"),
       join("rk_", "test_", "abcdefghijklmnopqrstuvwxyz123456"),
       join("whsec_", "abcdefghijklmnopqrstuvwxyz123456"),
       join("sb_", "secret_", "abcdefghijklmnopqrstuvwxyz123456"),
+      join("VERCEL_OIDC_TOKEN=", "eyJheader.payload.signature"),
     ].join("\n");
 
     expect(findSecretsInText(text, "fixture.txt").map((finding) => finding.name)).toEqual([
@@ -17,6 +18,7 @@ describe("secret scanner", () => {
       "Stripe restricted key",
       "Stripe webhook secret",
       "Supabase secret key",
+      "Vercel OIDC token",
     ]);
   });
 
@@ -28,6 +30,7 @@ describe("secret scanner", () => {
       "rk_test_example",
       "whsec_example",
       "sb_secret_example",
+      "VERCEL_OIDC_TOKEN=",
     ].join("\n");
 
     expect(findSecretsInText(text, "fixture.txt")).toEqual([]);

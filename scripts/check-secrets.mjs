@@ -7,6 +7,7 @@ export const secretPatterns = [
   { name: "Stripe restricted key", pattern: /\brk_(?:live|test)_[A-Za-z0-9_]{16,}\b/g },
   { name: "Stripe webhook secret", pattern: /\bwhsec_[A-Za-z0-9_]{16,}\b/g },
   { name: "Supabase secret key", pattern: /\bsb_secret_[A-Za-z0-9_]{16,}\b/g },
+  { name: "Vercel OIDC token", pattern: /\bVERCEL_OIDC_TOKEN\s*=\s*["']?eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+["']?/g },
 ];
 
 const allowedFiles = new Set([".env.example", "PRODUCTION_SETUP.md", "scripts/check-secrets.mjs"]);
@@ -51,7 +52,7 @@ export function scanFiles(filePaths = trackedAndUntrackedFiles()) {
 function main() {
   const findings = scanFiles();
   if (findings.length === 0) {
-    console.log("No Stripe or Supabase secrets found in tracked or untracked source files.");
+    console.log("No Stripe, Supabase, or Vercel OIDC secrets found in tracked or untracked source files.");
     return;
   }
 

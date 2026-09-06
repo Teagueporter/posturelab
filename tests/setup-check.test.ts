@@ -55,6 +55,12 @@ describe("production setup checker", () => {
     expect(invalidEnvMessages(validEnv())).toEqual([]);
   });
 
+  it("rejects transient Vercel OIDC tokens in local app env", () => {
+    expect(invalidEnvMessages({ ...validEnv(), VERCEL_OIDC_TOKEN: "eyJheader.payload.signature" } as NodeJS.ProcessEnv)).toEqual([
+      "VERCEL_OIDC_TOKEN should not be kept in .env.local; pull only app runtime env vars.",
+    ]);
+  });
+
   it("reports malformed production values without printing secrets", () => {
     const invalid = invalidEnvMessages({
       ...validEnv(),

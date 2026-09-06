@@ -24,6 +24,9 @@ export function formatMissingEnv(missing) {
 export function invalidEnvMessages(env = process.env) {
   const messages = [];
 
+  if (env.VERCEL_OIDC_TOKEN) {
+    messages.push("VERCEL_OIDC_TOKEN should not be kept in .env.local; pull only app runtime env vars.");
+  }
   if (env.NEXT_PUBLIC_APP_URL && !isHttpUrl(env.NEXT_PUBLIC_APP_URL)) {
     messages.push("NEXT_PUBLIC_APP_URL must be an absolute http(s) URL.");
   }
