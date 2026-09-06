@@ -4,6 +4,7 @@ import { envWithLocalFile, invalidEnvMessages, missingEnvNames } from "./setup-c
 import { checkSupabaseSchema } from "./check-supabase-schema.mjs";
 import { checkLiveSupabase } from "./check-live-supabase.mjs";
 import { checkLiveStripe } from "./check-live-stripe.mjs";
+import { checkVercelDeployment } from "./check-vercel-deployment.mjs";
 import { checkVercelEnvPresence } from "./check-vercel-env.mjs";
 import { runProductionSmokeChecks } from "./smoke-production.mjs";
 
@@ -16,6 +17,7 @@ export async function buildLaunchStatus({
   liveSupabaseCheck = includeLiveServices ? checkLiveSupabase({ env }) : null,
   liveStripeCheck = includeLiveServices ? checkLiveStripe({ env }) : null,
   vercelEnvCheck = includeVercelEnv ? checkVercelEnvPresence() : null,
+  vercelDeploymentCheck = includeVercelEnv ? checkVercelDeployment() : null,
 } = {}) {
   const missingEnv = missingEnvNames(env);
   const invalidEnv = invalidEnvMessages(env);
@@ -25,6 +27,7 @@ export async function buildLaunchStatus({
   const liveSupabase = liveSupabaseCheck ? await liveSupabaseCheck : null;
   const liveStripe = liveStripeCheck ? await liveStripeCheck : null;
   const vercelEnv = vercelEnvCheck ? await vercelEnvCheck : null;
+  const vercelDeployment = vercelDeploymentCheck ? await vercelDeploymentCheck : null;
 
   return {
     ok:
@@ -34,7 +37,7 @@ export async function buildLaunchStatus({
       productionSmoke.ok &&
       git.clean &&
       (!includeLiveServices || (liveSupabase?.ok === true && liveStripe?.ok === true)) &&
-      (!includeVercelEnv || vercelEnv?.ok === true),
+      (!includeVercelEnv || (vercelEnv?.ok === true && vercelDeployment?.ok === true)),
     git,
     localEnvironment: {
       configured: missingEnv.length === 0 && invalidEnv.length === 0,
@@ -49,6 +52,7 @@ export async function buildLaunchStatus({
     liveSupabase,
     liveStripe,
     vercelEnv,
+    vercelDeployment,
   };
 }
 
@@ -69,6 +73,9 @@ export function formatLaunchStatus(status) {
   }
   if (status.vercelEnv) {
     lines.push(`- Vercel env: ${status.vercelEnv.ok ? "pass" : "fail"}`);
+  }
+  if (status.vercelDeployment) {
+    lines.push(`- Vercel deployment: ${status.vercelDeployment.ok ? "pass" : "fail"}`);
   }
 
   if (status.localEnvironment.missing.length > 0) {
@@ -99,6 +106,11 @@ export function formatLaunchStatus(status) {
           return `  - ${check.name}: missing ${check.missingTargets.join(", ")}`;
         }),
     );
+  }
+  if (status.vercelDeployment && !status.vercelDeployment.ok) {
+    lines.push("Vercel deployment failures:");
+    lines.push(`  - expected alias ${status.vercelDeployment.expectedUrl}`);
+    lines.push(`  - status ${status.vercelDeployment.status}`);
   }
 
   return lines.join("\n");

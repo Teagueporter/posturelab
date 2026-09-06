@@ -62,15 +62,17 @@ describe("launch status command", () => {
       liveSupabaseCheck: Promise.resolve({ ok: true, missing: [], invalid: [], tableChecks: [], storage: { ok: true, detail: "private" } }),
       liveStripeCheck: Promise.resolve({ ok: true, missing: [], invalid: [], priceChecks: [] }),
       vercelEnvCheck: { ok: true, checks: [{ name: "NEXT_PUBLIC_APP_URL", present: true, configuredTargets: ["production", "preview", "development"], missingTargets: [], ok: true }] },
+      vercelDeploymentCheck: { ok: true, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_ready", status: "Ready", url: "https://deployment.vercel.app", aliases: ["https://posturelab-six.vercel.app"] },
     });
 
     const output = formatLaunchStatus(status);
 
     expect(status.ok).toBe(true);
     expect(output).toContain("Vercel env: pass");
+    expect(output).toContain("Vercel deployment: pass");
   });
 
-  it("surfaces live service failures when requested", async () => {
+  it("surfaces live service and Vercel failures when requested", async () => {
     const status = await buildLaunchStatus({
       env: validEnv(),
       fetchImpl: fakeLiveSmokeFetch as typeof fetch,
@@ -94,6 +96,7 @@ describe("launch status command", () => {
         ok: false,
         checks: [{ name: "STRIPE_RESTRICTED_KEY", present: false, configuredTargets: [], missingTargets: ["production", "preview", "development"], ok: false }],
       },
+      vercelDeploymentCheck: { ok: false, expectedUrl: "https://posturelab-six.vercel.app", id: "dpl_pending", status: "Building", url: "https://deployment.vercel.app", aliases: [] },
     });
 
     const output = formatLaunchStatus(status);
@@ -105,6 +108,8 @@ describe("launch status command", () => {
     expect(output).toContain("monthly: expected month interval");
     expect(output).toContain("Vercel env failures:");
     expect(output).toContain("missing STRIPE_RESTRICTED_KEY");
+    expect(output).toContain("Vercel deployment failures:");
+    expect(output).toContain("status Building");
   });
 
   it("keeps normal status informational but makes readiness gate fail when not ready", async () => {

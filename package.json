@@ -16,6 +16,7 @@
     "supabase:live-check": "node scripts/check-live-supabase.mjs",
     "stripe:catalog-plan": "node scripts/stripe-catalog-plan.mjs",
     "stripe:live-check": "node scripts/check-live-stripe.mjs",
+    "vercel:deployment-check": "node scripts/check-vercel-deployment.mjs",
     "vercel:env-check": "node scripts/check-vercel-env.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
     "smoke:ready": "node scripts/smoke-production.mjs --require-live-services",

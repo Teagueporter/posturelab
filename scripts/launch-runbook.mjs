@@ -37,6 +37,7 @@ export function buildLaunchRunbook({
     "- Run npm run vercel:env-plan and add each value through Vercel prompts.",
     "- Run npm run vercel:env-check after Vercel env vars are added.",
     "- Redeploy production.",
+    "- Run npm run vercel:deployment-check.",
     "",
     "5. Final gates",
     "- Run npm run smoke:ready.",

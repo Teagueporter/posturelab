@@ -21,6 +21,7 @@ describe("CI workflow", () => {
     expect(packageJson.scripts["supabase:live-check"]).toBe("node scripts/check-live-supabase.mjs");
     expect(packageJson.scripts["stripe:catalog-plan"]).toBe("node scripts/stripe-catalog-plan.mjs");
     expect(packageJson.scripts["stripe:live-check"]).toBe("node scripts/check-live-stripe.mjs");
+    expect(packageJson.scripts["vercel:deployment-check"]).toBe("node scripts/check-vercel-deployment.mjs");
     expect(packageJson.scripts["smoke:ready"]).toBe("node scripts/smoke-production.mjs --require-live-services");
     expect(packageJson.scripts["launch:runbook"]).toBe("node scripts/launch-runbook.mjs");
     expect(packageJson.scripts["launch:status"]).toBe("node scripts/launch-status.mjs");

@@ -20,6 +20,7 @@ describe("launch runbook", () => {
     expect(output).toContain("npm run supabase:live-check");
     expect(output).toContain("npm run stripe:live-check");
     expect(output).toContain("npm run vercel:env-check");
+    expect(output).toContain("npm run vercel:deployment-check");
     expect(output).toContain("npm run launch:ready");
   });
 

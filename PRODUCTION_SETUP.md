@@ -6,7 +6,7 @@ Current Vercel production checkpoint:
 
 - Project: `teagueporters-projects/posturelab`
 - Production URL: `https://posturelab-six.vercel.app`
-- Deployment ID: `dpl_4zzdTduAZzPkZx7EWbKPRMXT7K9J`
+- Deployment ID: `dpl_2cbHi8jaXCfQYrcXCS6FFtmTSeXk`
 - Status: deployed and responding; `NEXT_PUBLIC_APP_URL` is configured in Vercel; `/api/health` currently reports Supabase and Stripe as `missing-env`
 - Latest smoke check: `npm run smoke:prod` passed against the production alias with disabled checkout and unsigned webhook rejection verified
 
@@ -72,6 +72,7 @@ npm run launch:runbook
 npm run supabase:schema-check
 npm run supabase:live-check
 npm run stripe:live-check
+npm run vercel:deployment-check
 npm run vercel:env-plan
 npm run vercel:env-check
 ```
@@ -83,6 +84,7 @@ npm run smoke:prod
 ```
 
 This checks the deployed health endpoint, pricing checkout state, and unsigned Stripe webhook rejection without printing secrets.
+Use `npm run vercel:deployment-check` after redeploying to confirm the production alias points at a Ready deployment.
 
 After Supabase and Stripe env vars are configured in Vercel, run the stricter launch gate:
 

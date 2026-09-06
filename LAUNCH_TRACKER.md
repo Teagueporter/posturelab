@@ -30,6 +30,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 - [ ] Run `npm run vercel:env-plan` locally before adding Vercel env vars so secret values are never printed in setup logs.
 - [ ] Run `npm run vercel:env-check` after adding Vercel env vars.
 - [ ] Redeploy production.
+- [ ] Run `npm run vercel:deployment-check` after redeploying production.
 - [ ] Run `npm run verify`.
 - [ ] Run `npm run smoke:prod`.
 - [ ] Run `npm run smoke:ready` after Vercel env vars are deployed.
