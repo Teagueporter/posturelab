@@ -80,6 +80,7 @@ npm run supabase:status
 npm run verify
 npm run smoke:prod
 npm run launch:status
+npm run vercel:env-plan
 ```
 
 Current local verification:
@@ -87,9 +88,10 @@ Current local verification:
 - `npm run verify`: runs the secret scanner, Supabase schema checker, tests, lint, and production build
 - `npm run smoke:prod`: checks the deployed health endpoint, pricing checkout state, and unsigned webhook rejection
 - `npm run launch:status`: summarizes git cleanliness, local env readiness, schema checks, and production smoke state
-- Current test suite: 41 files passed, 123 tests passed
+- `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
+- Current test suite: 42 files passed, 125 tests passed
 
-The setup and launch-status checkers read `.env.local` without printing values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
+The setup, launch-status, and Vercel env-plan checkers read `.env.local` without printing values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 
 GitHub Actions runs `npm run verify` on pull requests and pushes to `main`.
 

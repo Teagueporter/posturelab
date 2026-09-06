@@ -13,6 +13,7 @@
     "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
     "launch:status": "node scripts/launch-status.mjs",
+    "vercel:env-plan": "node scripts/vercel-env-plan.mjs",
     "verify": "npm run secrets:check && npm run supabase:schema-check && npm test && npm run lint && npm run build",
     "setup:check": "node scripts/setup-check.mjs",
     "supabase:start": "supabase start",
