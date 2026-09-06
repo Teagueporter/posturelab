@@ -15,6 +15,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [ ] Create monthly and yearly Pro products/prices.
 - [ ] Create the restricted runtime key with Customers read/write, Checkout Sessions write, Customer Portal Sessions write, and Subscriptions read/write.
+- [ ] Run `npm run stripe:live-check` after local Stripe env vars are installed.
 - [ ] Create the webhook endpoint at `https://posturelab-six.vercel.app/api/stripe/webhook`.
 - [ ] Subscribe the webhook to checkout completion and subscription create/update/delete events.
 - [ ] Review Stripe Tax before live charging. `automatic_tax` is intentionally not enabled yet.

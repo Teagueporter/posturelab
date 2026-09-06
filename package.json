@@ -12,6 +12,7 @@
     "secrets:check": "node scripts/check-secrets.mjs",
     "supabase:schema-check": "node scripts/check-supabase-schema.mjs",
     "supabase:live-check": "node scripts/check-live-supabase.mjs",
+    "stripe:live-check": "node scripts/check-live-stripe.mjs",
     "smoke:prod": "node scripts/smoke-production.mjs",
     "smoke:ready": "node scripts/smoke-production.mjs --require-live-services",
     "launch:status": "node scripts/launch-status.mjs",
