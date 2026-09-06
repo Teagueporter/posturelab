@@ -18,6 +18,7 @@ describe("launch runbook", () => {
       "Approval required before creation: Approve creating the Supabase project posturelab in teagueporter's projects for $0/month.",
     );
     expect(output).toContain("npm run supabase:migration-plan");
+    expect(output).toContain("explicit authenticated grants plus RLS policies");
     expect(output).toContain("npm run supabase:live-check");
     expect(output).toContain("npm run stripe:key-plan");
     expect(output).toContain("npm run stripe:webhook-plan");
