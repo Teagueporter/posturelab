@@ -84,6 +84,10 @@ export function formatLaunchStatus(status) {
   return lines.join("\n");
 }
 
+export function launchStatusExitCode(status, { failOnNotReady = false } = {}) {
+  return failOnNotReady && !status.ok ? 1 : 0;
+}
+
 function formatNestedLiveFailures(title, result) {
   const lines = [title];
   if (result.missing?.length > 0) {
@@ -143,6 +147,9 @@ async function main() {
     includeLiveServices: process.argv.includes("--include-live-services"),
   });
   console.log(formatLaunchStatus(status));
+  process.exitCode = launchStatusExitCode(status, {
+    failOnNotReady: process.argv.includes("--fail-on-not-ready"),
+  });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

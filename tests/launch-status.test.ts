@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildLaunchStatus, formatLaunchStatus } from "../scripts/launch-status.mjs";
+import { buildLaunchStatus, formatLaunchStatus, launchStatusExitCode } from "../scripts/launch-status.mjs";
 
 describe("launch status command", () => {
   it("summarizes missing env vars, schema checks, production smoke, and git state", async () => {
@@ -80,6 +80,21 @@ describe("launch status command", () => {
     expect(output).toContain("scans: permission denied");
     expect(output).toContain("storage: scan-images bucket is missing");
     expect(output).toContain("monthly: expected month interval");
+  });
+
+  it("keeps normal status informational but makes readiness gate fail when not ready", async () => {
+    const status = await buildLaunchStatus({
+      env: {
+        NODE_ENV: "test",
+        NEXT_PUBLIC_APP_URL: "https://posturelab-six.vercel.app",
+      } as NodeJS.ProcessEnv,
+      fetchImpl: fakeSmokeFetch as typeof fetch,
+      runGit: fakeGit,
+    });
+
+    expect(status.ok).toBe(false);
+    expect(launchStatusExitCode(status)).toBe(0);
+    expect(launchStatusExitCode(status, { failOnNotReady: true })).toBe(1);
   });
 });
 

@@ -19,7 +19,7 @@ describe("CI workflow", () => {
     expect(packageJson.scripts["stripe:live-check"]).toBe("node scripts/check-live-stripe.mjs");
     expect(packageJson.scripts["smoke:ready"]).toBe("node scripts/smoke-production.mjs --require-live-services");
     expect(packageJson.scripts["launch:status"]).toBe("node scripts/launch-status.mjs");
-    expect(packageJson.scripts["launch:ready"]).toBe("node scripts/launch-status.mjs --include-live-services");
+    expect(packageJson.scripts["launch:ready"]).toBe("node scripts/launch-status.mjs --include-live-services --fail-on-not-ready");
     expect(packageJson.scripts["vercel:env-plan"]).toBe("node scripts/vercel-env-plan.mjs");
   });
 });
