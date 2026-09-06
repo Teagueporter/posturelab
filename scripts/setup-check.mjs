@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 export const requiredEnvNames = [
@@ -51,21 +52,54 @@ export function formatInvalidEnv(messages) {
   return ["Invalid production environment variables:", ...messages.map((message) => `- ${message}`)].join("\n");
 }
 
+export function envWithLocalFile(env = process.env, filePath = ".env.local") {
+  return {
+    ...readEnvFile(filePath),
+    ...env,
+  };
+}
+
+export function readEnvFile(filePath) {
+  if (!existsSync(filePath)) return {};
+
+  const parsed = {};
+  for (const line of readFileSync(filePath, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const separatorIndex = trimmed.indexOf("=");
+    if (separatorIndex <= 0) continue;
+
+    const key = trimmed.slice(0, separatorIndex).trim();
+    const rawValue = trimmed.slice(separatorIndex + 1).trim();
+    parsed[key] = unquoteEnvValue(rawValue);
+  }
+
+  return parsed;
+}
+
 function main() {
-  const missing = missingEnvNames();
+  const env = envWithLocalFile();
+  const missing = missingEnvNames(env);
 
   if (missing.length > 0) {
     console.error(formatMissingEnv(missing));
     process.exit(1);
   }
 
-  const invalid = invalidEnvMessages();
+  const invalid = invalidEnvMessages(env);
   if (invalid.length > 0) {
     console.error(formatInvalidEnv(invalid));
     process.exit(1);
   }
 
   console.log("Production environment variables are present.");
+}
+
+function unquoteEnvValue(value) {
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
+  }
+  return value;
 }
 
 function isHttpUrl(value) {

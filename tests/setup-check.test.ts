@@ -1,9 +1,13 @@
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   formatInvalidEnv,
   formatMissingEnv,
   invalidEnvMessages,
   missingEnvNames,
+  readEnvFile,
   requiredEnvNames,
 } from "../scripts/setup-check.mjs";
 
@@ -71,6 +75,16 @@ describe("production setup checker", () => {
       "STRIPE_PRO_MONTHLY_PRICE_ID must be a Stripe Price ID that starts with price_.",
     ]);
     expect(formatInvalidEnv(invalid)).not.toContain("sk_live_secret");
+  });
+
+  it("parses env files without printing values", () => {
+    const filePath = path.join(mkdtempSync(path.join(tmpdir(), "posturelab-env-")), ".env.local");
+    writeFileSync(filePath, 'NEXT_PUBLIC_APP_URL="https://posturelab.example"\nSTRIPE_WEBHOOK_SECRET=secret-value\n');
+    const parsed = readEnvFile(filePath) as Record<string, string>;
+
+    expect(parsed.NEXT_PUBLIC_APP_URL).toBe("https://posturelab.example");
+    expect(parsed.STRIPE_WEBHOOK_SECRET).toBe("secret-value");
+    expect(formatMissingEnv(["STRIPE_WEBHOOK_SECRET"])).not.toContain("secret-value");
   });
 });
 

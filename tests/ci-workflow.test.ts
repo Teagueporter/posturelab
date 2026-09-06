@@ -15,5 +15,6 @@ describe("CI workflow", () => {
     expect(packageJson.scripts.verify).toContain("npm run lint");
     expect(packageJson.scripts.verify).toContain("npm run build");
     expect(packageJson.scripts.verify).toContain("npm run supabase:schema-check");
+    expect(packageJson.scripts["launch:status"]).toBe("node scripts/launch-status.mjs");
   });
 });
