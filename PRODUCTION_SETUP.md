@@ -176,7 +176,7 @@ Before going live, review Stripe Tax. The app intentionally does not enable `aut
 1. Push the working branch and confirm the GitHub Actions CI workflow passes.
 2. Confirm the Vercel project `posturelab` is linked to the GitHub repo and uses the Next.js framework preset.
 3. Enable only the observability products you want billed/active. The app already mounts the official Vercel Web Analytics and Speed Insights components. Vercel's September 2026 docs list Speed Insights as available on all plans with a free event allocation, while Web Analytics on Pro is event-billed after included usage.
-4. Add the remaining environment variables for Production and Preview. Mark server secrets as sensitive where available. `NEXT_PUBLIC_APP_URL` is already set to `https://posturelab-six.vercel.app`. Use `npm run vercel:env-plan` after filling `.env.local`; it prints interactive `vercel env add` commands by variable name without printing secret values.
+4. Add the remaining environment variables for Production and Preview. Mark server secrets as sensitive where available. `NEXT_PUBLIC_APP_URL` is already set to `https://posturelab-six.vercel.app`. Use `npm run vercel:env-plan` after filling `.env.local`; it prints interactive `vercel env add` commands by variable name with explicit `--sensitive` or `--no-sensitive` flags, without printing secret values.
    After adding variables, run `npm run vercel:env-check` to confirm Vercel has every required variable name for production and preview without printing values.
 
 ```bash

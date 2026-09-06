@@ -26,7 +26,7 @@ export function buildVercelEnvPlan({
     ready: ready.map((name) => ({
       name,
       sensitive: sensitiveEnvNames.has(name),
-      command: `vercel env add ${name} ${targets.join(" ")}`,
+      command: `vercel env add ${name} ${targets.join(",")} ${sensitiveEnvNames.has(name) ? "--sensitive" : "--no-sensitive"}`,
     })),
   };
 }

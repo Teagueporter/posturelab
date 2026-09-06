@@ -16,7 +16,7 @@ describe("Vercel env planner", () => {
     expect(plan.ok).toBe(false);
     expect(plan.ready.map((item) => item.name)).toEqual(["NEXT_PUBLIC_APP_URL", "STRIPE_RESTRICTED_KEY"]);
     expect(output).toContain("Vercel env plan: NOT READY");
-    expect(output).toContain("vercel env add STRIPE_RESTRICTED_KEY production preview");
+    expect(output).toContain("vercel env add STRIPE_RESTRICTED_KEY production,preview --sensitive");
     expect(output).not.toContain("rk_test_x");
     expect(output).not.toContain("https://posturelab.example");
   });
@@ -31,6 +31,17 @@ describe("Vercel env planner", () => {
         .map((item) => item.name)
         .sort(),
     ).toEqual(["STRIPE_RESTRICTED_KEY", "STRIPE_WEBHOOK_SECRET", "SUPABASE_SERVICE_ROLE_KEY"]);
+  });
+
+  it("generates Vercel CLI commands with explicit sensitivity flags", () => {
+    const plan = buildVercelEnvPlan({ env: validEnv() });
+
+    expect(plan.ready.find((item) => item.name === "SUPABASE_SERVICE_ROLE_KEY")?.command).toBe(
+      "vercel env add SUPABASE_SERVICE_ROLE_KEY production,preview --sensitive",
+    );
+    expect(plan.ready.find((item) => item.name === "NEXT_PUBLIC_APP_URL")?.command).toBe(
+      "vercel env add NEXT_PUBLIC_APP_URL production,preview --no-sensitive",
+    );
   });
 });
 
