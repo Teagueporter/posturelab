@@ -133,6 +133,15 @@ alter table public.weekly_reviews enable row level security;
 alter table public.subscriptions enable row level security;
 alter table public.stripe_webhook_events enable row level security;
 
+revoke all on table public.profiles from anon;
+revoke all on table public.scans from anon;
+revoke all on table public.check_ins from anon;
+revoke all on table public.workout_completions from anon;
+revoke all on table public.weekly_reviews from anon;
+revoke all on table public.subscriptions from anon;
+revoke all on table public.stripe_webhook_events from anon;
+revoke all on table public.stripe_webhook_events from authenticated;
+
 grant usage on schema public to authenticated;
 grant select, insert, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.scans to authenticated;

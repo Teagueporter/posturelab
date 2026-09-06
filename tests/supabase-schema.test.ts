@@ -43,6 +43,22 @@ describe("Supabase production schema", () => {
     expect(migration).not.toContain(" to anon;");
   });
 
+  it("explicitly revokes public access and keeps webhook bookkeeping service-only", () => {
+    for (const table of [
+      "profiles",
+      "scans",
+      "check_ins",
+      "workout_completions",
+      "weekly_reviews",
+      "subscriptions",
+      "stripe_webhook_events",
+    ]) {
+      expect(migration).toContain(`revoke all on table public.${table} from anon;`);
+    }
+    expect(migration).toContain("revoke all on table public.stripe_webhook_events from authenticated;");
+  });
+
+
   it("keeps scan photo storage private and scoped to the user's folder", () => {
     expect(migration).toContain("'scan-images'");
     expect(migration).toContain("false,\n  10485760");

@@ -128,7 +128,7 @@ https://posturelab-six.vercel.app/auth/callback
 
 The service role key is only used on the server for billing webhook/customer synchronization. It must never be exposed to the browser.
 
-The migration explicitly grants authenticated Data API access only to the app tables that browser clients need, keeps `stripe_webhook_events` service-only through RLS, scopes storage objects to the signed-in user's folder, and drops/recreates policies by name so setup retries fail less noisily.
+The migration explicitly grants authenticated Data API access only to the app tables that browser clients need, revokes anonymous table access, keeps `stripe_webhook_events` service-only through RLS and explicit authenticated-role revocation, scopes storage objects to the signed-in user's folder, and drops/recreates policies by name so setup retries fail less noisily.
 
 For local database testing, run:
 

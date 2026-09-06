@@ -68,6 +68,10 @@ export function checkSupabaseSchema(sql = readFileSync(migrationPath, "utf8")) {
   expectContains(sql, "grant select, insert, update, delete on public.weekly_reviews to authenticated;", failures);
   expectContains(sql, "grant select on public.subscriptions to authenticated;", failures);
   expectNotContains(sql, " to anon;", failures);
+  for (const table of appTables) {
+    expectContains(sql, `revoke all on table public.${table} from anon;`, failures);
+  }
+  expectContains(sql, "revoke all on table public.stripe_webhook_events from authenticated;", failures);
 
   expectContains(sql, "'scan-images'", failures);
   expectContains(sql, "false,\n  10485760", failures);
