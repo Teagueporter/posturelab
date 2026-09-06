@@ -91,7 +91,7 @@ Current local verification:
 - `npm run smoke:ready`: requires production health to report live Supabase and Stripe env wiring before launch
 - `npm run launch:status`: summarizes git cleanliness, local env readiness, schema checks, and production smoke state
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
-- Current test suite: 42 files passed, 127 tests passed
+- Current test suite: 42 files passed, 128 tests passed
 
 The setup, launch-status, and Vercel env-plan checkers read `.env.local` without printing values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 
@@ -111,5 +111,5 @@ PostureLab estimates posture patterns from 2D photo landmarks. The output is int
 - Improve onboarding for camera positioning and lighting
 - Add calibration helpers for more consistent measurements
 - Connect production Supabase and Stripe credentials in Vercel
-- Replace draft privacy/terms copy before charging users
+- Get legal review of the privacy policy and terms before charging users
 - Deploy a public demo with clear privacy and safety boundaries

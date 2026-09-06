@@ -241,10 +241,10 @@ Launch-critical API routes and server actions emit compact JSON logs for start/d
 
 ## Launch Readiness
 
-Before charging users, add:
+Before charging users, confirm:
 
-- Final Privacy Policy
-- Final Terms of Service
+- Privacy Policy legal review
+- Terms of Service legal review
 - Legal review of account export and deletion behavior
 - Clear wellness-only, non-diagnostic language
 - A short onboarding note explaining photo storage and privacy
