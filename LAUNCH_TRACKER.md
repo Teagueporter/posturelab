@@ -3,6 +3,7 @@
 This file mirrors the launch issues that still need to be created in GitHub. The GitHub connector can search the repo but returned `403 Resource not accessible by integration` when creating issues, so the tasks are tracked here until issue creation permissions are available.
 
 - [ ] Run `npm run launch:runbook` before starting live service setup.
+- [ ] Run `npm run launch:next` to confirm the shortest current blocker list before each setup session.
 
 ## Connector Status
 

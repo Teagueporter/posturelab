@@ -74,6 +74,7 @@ npm run env:template-check
 npm run managed-services:check
 npm run setup:check
 npm run launch:runbook
+npm run launch:next
 npm run supabase:schema-check
 npm run supabase:live-check
 npm run stripe:live-check
