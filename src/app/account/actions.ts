@@ -67,11 +67,14 @@ export async function deleteCloudAccount(formData: FormData) {
 
   try {
     const service = createSupabaseServiceClient();
-    const { data: subscription } = await service
+    const { data: subscription, error: subscriptionError } = await service
       .from("subscriptions")
       .select("stripe_subscription_id,status")
       .eq("user_id", user.id)
       .maybeSingle();
+    if (subscriptionError) {
+      throw new Error("Unable to read subscription before account deletion");
+    }
 
     if (hasStripeEnv() && subscription?.stripe_subscription_id && subscription.status !== "canceled") {
       await createStripeClient().subscriptions.cancel(subscription.stripe_subscription_id);
@@ -79,10 +82,16 @@ export async function deleteCloudAccount(formData: FormData) {
 
     const imagePaths = await listUserScanImagePaths(user.id);
     if (imagePaths.length > 0) {
-      await service.storage.from("scan-images").remove(imagePaths);
+      const { error: removeError } = await service.storage.from("scan-images").remove(imagePaths);
+      if (removeError) {
+        throw new Error("Unable to remove scan images before account deletion");
+      }
     }
 
-    await service.auth.admin.deleteUser(user.id);
+    const { error: deleteUserError } = await service.auth.admin.deleteUser(user.id);
+    if (deleteUserError) {
+      throw new Error("Unable to delete Supabase Auth user");
+    }
 
     const supabase = await createSupabaseServerClient();
     await supabase?.auth.signOut();
@@ -96,12 +105,18 @@ export async function deleteCloudAccount(formData: FormData) {
 
 async function listUserScanImagePaths(userId: string) {
   const service = createSupabaseServiceClient();
-  const { data: scanFolders } = await service.storage.from("scan-images").list(userId, { limit: 1000 });
+  const { data: scanFolders, error: folderError } = await service.storage.from("scan-images").list(userId, { limit: 1000 });
+  if (folderError) {
+    throw new Error("Unable to list scan image folders before account deletion");
+  }
   if (!scanFolders) return [];
 
   const nestedPaths = await Promise.all(
     scanFolders.map(async (folder) => {
-      const { data: files } = await service.storage.from("scan-images").list(`${userId}/${folder.name}`, { limit: 20 });
+      const { data: files, error: filesError } = await service.storage.from("scan-images").list(`${userId}/${folder.name}`, { limit: 20 });
+      if (filesError) {
+        throw new Error("Unable to list scan image files before account deletion");
+      }
       return (files ?? []).map((file) => `${userId}/${folder.name}/${file.name}`);
     }),
   );
