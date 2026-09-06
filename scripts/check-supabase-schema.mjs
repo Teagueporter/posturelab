@@ -13,6 +13,17 @@ export const appTables = [
   "stripe_webhook_events",
 ];
 
+export const userOwnedTables = {
+  profiles: "id",
+  scans: "user_id",
+  check_ins: "user_id",
+  workout_completions: "user_id",
+  weekly_reviews: "user_id",
+  subscriptions: "user_id",
+};
+
+export const storagePolicyOperations = ["select", "insert", "update", "delete"];
+
 export function checkSupabaseSchema(sql = readFileSync(migrationPath, "utf8")) {
   const failures = [];
 
@@ -24,6 +35,22 @@ export function checkSupabaseSchema(sql = readFileSync(migrationPath, "utf8")) {
     expectContains(sql, `on public.${table}`, failures);
     expectContains(sql, "to authenticated", failures);
     expectContains(sql, "(select auth.uid())", failures);
+  }
+
+  for (const [table, ownerColumn] of Object.entries(userOwnedTables)) {
+    const policyBlocks = policyBlocksForTable(sql, `public.${table}`);
+    if (policyBlocks.length === 0) {
+      failures.push(`Missing authenticated RLS policies for public.${table}`);
+      continue;
+    }
+    expectPolicyBlock(policyBlocks, table, "select", "using", `(select auth.uid()) = ${ownerColumn}`, failures);
+    if (table !== "subscriptions") {
+      expectPolicyBlock(policyBlocks, table, "insert", "with check", `(select auth.uid()) = ${ownerColumn}`, failures);
+    }
+    if (table === "profiles" || table === "scans") {
+      expectPolicyBlock(policyBlocks, table, "update", "using", `(select auth.uid()) = ${ownerColumn}`, failures);
+      expectPolicyBlock(policyBlocks, table, "update", "with check", `(select auth.uid()) = ${ownerColumn}`, failures);
+    }
   }
 
   expectContains(sql, "create table if not exists public.stripe_webhook_events", failures);
@@ -45,14 +72,16 @@ export function checkSupabaseSchema(sql = readFileSync(migrationPath, "utf8")) {
   expectContains(sql, "'scan-images'", failures);
   expectContains(sql, "false,\n  10485760", failures);
   expectContains(sql, "array['image/jpeg', 'image/png', 'image/webp']", failures);
-  expectContains(sql, "on storage.objects for select", failures);
-  expectContains(sql, "on storage.objects for insert", failures);
-  expectContains(sql, "on storage.objects for update", failures);
-  expectContains(sql, "on storage.objects for delete", failures);
+  for (const operation of storagePolicyOperations) {
+    expectContains(sql, `on storage.objects for ${operation}`, failures);
+  }
   expectContains(sql, "(storage.foldername(name))[1] = (select auth.uid())::text", failures);
+  expectStoragePolicyCoverage(sql, failures);
 
   expectContains(sql, "create or replace function public.set_updated_at()", failures);
   expectContains(sql, "set search_path = ''", failures);
+  expectNotContains(sql.toLowerCase(), "security definer", failures);
+  expectNotContains(sql, "auth.role()", failures);
 
   return failures;
 }
@@ -70,6 +99,51 @@ function expectContains(sql, needle, failures) {
 function expectNotContains(sql, needle, failures) {
   if (sql.includes(needle)) {
     failures.push(`Forbidden SQL found: ${needle}`);
+  }
+}
+
+function policyBlocksForTable(sql, tableName) {
+  return Array.from(sql.matchAll(/create policy[\s\S]*?;\s*(?=\n|$)/gi), (match) => match[0])
+    .filter((block) => block.includes(`on ${tableName}`));
+}
+
+function expectPolicyBlock(blocks, table, operation, clause, predicate, failures) {
+  const matchingBlock = blocks.find((block) => block.includes(` for ${operation}`) || block.includes(" for all"));
+  if (!matchingBlock) {
+    failures.push(`Missing ${operation} policy for public.${table}`);
+    return;
+  }
+  if (!matchingBlock.includes("to authenticated")) {
+    failures.push(`Missing authenticated target on ${operation} policy for public.${table}`);
+  }
+  if (!matchingBlock.includes(clause)) {
+    failures.push(`Missing ${clause} clause on ${operation} policy for public.${table}`);
+  }
+  if (!matchingBlock.includes(predicate)) {
+    failures.push(`Missing ownership predicate on ${operation} policy for public.${table}: ${predicate}`);
+  }
+}
+
+function expectStoragePolicyCoverage(sql, failures) {
+  const storageBlocks = policyBlocksForTable(sql, "storage.objects");
+  for (const operation of storagePolicyOperations) {
+    const matchingBlock = storageBlocks.find((block) => block.includes(` for ${operation}`));
+    if (!matchingBlock) {
+      failures.push(`Missing ${operation} storage policy for scan-images`);
+      continue;
+    }
+    if (!matchingBlock.includes("to authenticated")) {
+      failures.push(`Missing authenticated target on ${operation} storage policy`);
+    }
+    if (!matchingBlock.includes("bucket_id = 'scan-images'")) {
+      failures.push(`Missing scan-images bucket guard on ${operation} storage policy`);
+    }
+    if (!matchingBlock.includes("(storage.foldername(name))[1] = (select auth.uid())::text")) {
+      failures.push(`Missing user folder guard on ${operation} storage policy`);
+    }
+    if ((operation === "insert" || operation === "update") && !matchingBlock.includes("with check")) {
+      failures.push(`Missing with check on ${operation} storage policy`);
+    }
   }
 }
 

@@ -97,7 +97,7 @@ Current local verification:
 - `npm run launch:status`: summarizes git cleanliness, local env readiness, schema checks, and production smoke state
 - `npm run launch:ready`: includes live Supabase and Stripe checks for the final pre-charge gate and exits nonzero until ready
 - `npm run vercel:env-plan`: checks which local env values are ready to add to Vercel without printing values
-- Current test suite: 44 files passed, 137 tests passed
+- Current test suite: 44 files passed, 138 tests passed
 
 The setup, launch-status, and Vercel env-plan checkers read `.env.local` without printing values. The secret scanner checks tracked and untracked source files for Stripe and Supabase secret-shaped values. Keep real keys in `.env.local` and Vercel environment variables only.
 

@@ -49,10 +49,16 @@ describe("Supabase production schema", () => {
     expect(migration).toContain("array['image/jpeg', 'image/png', 'image/webp']");
     expect(migration).toContain("drop policy if exists \"Users can read their own scan images\" on storage.objects;");
     expect(migration).toContain("(storage.foldername(name))[1] = (select auth.uid())::text");
+    expect(migration).toContain("on storage.objects for select");
+    expect(migration).toContain("on storage.objects for insert");
+    expect(migration).toContain("on storage.objects for update");
+    expect(migration).toContain("on storage.objects for delete");
   });
 
   it("sets a fixed search path on trigger functions for Supabase advisors", () => {
     expect(migration).toContain("create or replace function public.set_updated_at()");
     expect(migration).toContain("set search_path = ''");
+    expect(migration.toLowerCase()).not.toContain("security definer");
+    expect(migration).not.toContain("auth.role()");
   });
 });
