@@ -21,5 +21,6 @@ describe("CI workflow", () => {
     expect(packageJson.scripts["launch:status"]).toBe("node scripts/launch-status.mjs");
     expect(packageJson.scripts["launch:ready"]).toBe("node scripts/launch-status.mjs --include-live-services --fail-on-not-ready");
     expect(packageJson.scripts["vercel:env-plan"]).toBe("node scripts/vercel-env-plan.mjs");
+    expect(packageJson.scripts["vercel:env-check"]).toBe("node scripts/check-vercel-env.mjs");
   });
 });

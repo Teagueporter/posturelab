@@ -24,6 +24,7 @@ This file mirrors the launch issues that still need to be created in GitHub. The
 
 - [ ] Add Supabase and Stripe env vars to Production and Preview.
 - [ ] Run `npm run vercel:env-plan` locally before adding Vercel env vars so secret values are never printed in setup logs.
+- [ ] Run `npm run vercel:env-check` after adding Vercel env vars.
 - [ ] Redeploy production.
 - [ ] Run `npm run verify`.
 - [ ] Run `npm run smoke:prod`.
