@@ -36,4 +36,15 @@ describe("cloud sync contracts", () => {
     expect(cloudSource.indexOf("image-upload-failed")).toBeGreaterThan(-1);
     expect(cloudSource.indexOf("image-upload-failed")).toBeLessThan(cloudSource.indexOf('supabase.from("scans").upsert'));
   });
+
+  it("keeps scan image deletion failures ahead of database scan deletes", () => {
+    const cloudSource = readFileSync(path.join(process.cwd(), "src/lib/storage/cloud.ts"), "utf8");
+    const listFailureIndex = cloudSource.indexOf('"image-list-failed"');
+    const deleteFailureIndex = cloudSource.indexOf('"image-delete-failed"');
+    const scanDeleteIndex = cloudSource.indexOf('supabase.from("scans").delete()');
+
+    expect(listFailureIndex).toBeGreaterThan(-1);
+    expect(deleteFailureIndex).toBeGreaterThan(listFailureIndex);
+    expect(scanDeleteIndex).toBeGreaterThan(deleteFailureIndex);
+  });
 });

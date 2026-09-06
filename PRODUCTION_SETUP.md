@@ -6,7 +6,7 @@ Current Vercel production checkpoint:
 
 - Project: `teagueporters-projects/posturelab`
 - Production URL: `https://posturelab-six.vercel.app`
-- Deployment ID: `dpl_5Fxzb3HYsuKSr8cARujHrRCHzM9f`
+- Deployment ID: `dpl_Bzg2tnMoUnUwPNk5rceiM1roq1bB`
 - Status: deployed and responding; `NEXT_PUBLIC_APP_URL` is configured in Vercel; `/api/health` currently reports Supabase and Stripe as `missing-env`
 - Latest smoke check: `npm run smoke:prod` passed against the production alias with disabled checkout and unsigned webhook rejection verified
 
@@ -24,7 +24,7 @@ Current Vercel production checkpoint:
 - Server-aware entitlements: Free users get one saved scan; Pro users get unlimited scans plus weekly review/report export features
 - Auth callback fails closed if Supabase cannot create the user's profile row after email sign-in
 
-The local scan flow still works without these services. When Supabase is configured and a user is signed in, new scans, check-ins, workout completions, and Pro weekly reviews also sync to Supabase.
+The local scan flow still works without these services. When Supabase is configured and a user is signed in, new scans, check-ins, workout completions, and Pro weekly reviews also sync to Supabase. Cloud scan deletion fails closed if scan photo listing or removal fails before the scan row is deleted.
 
 ## Required Environment Variables
 

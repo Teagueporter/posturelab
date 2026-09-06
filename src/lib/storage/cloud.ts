@@ -119,10 +119,13 @@ export async function deleteScanFromCloud(scanId: string) {
   if (!user) return { deleted: false, reason: "not-signed-in" as const };
 
   const folder = `${user.id}/${scanId}`;
-  const { data: files } = await supabase.storage.from("scan-images").list(folder, { limit: 20 });
+  const { data: files, error: listError } = await supabase.storage.from("scan-images").list(folder, { limit: 20 });
+  if (listError) return { deleted: false, reason: "image-list-failed" as const };
+
   const imagePaths = (files ?? []).map((file) => `${folder}/${file.name}`);
   if (imagePaths.length > 0) {
-    await supabase.storage.from("scan-images").remove(imagePaths);
+    const { error: removeError } = await supabase.storage.from("scan-images").remove(imagePaths);
+    if (removeError) return { deleted: false, reason: "image-delete-failed" as const };
   }
 
   const { error } = await supabase.from("scans").delete().eq("id", scanId).eq("user_id", user.id);
